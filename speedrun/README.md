@@ -23,6 +23,7 @@ App-specific assets that ship with the fork, kept separate from upstream Anki co
 - `SYNC.md` — the Phase 7 sync model: standard data via Anki's self-hosted server, and the append-only transfer-review log merge (union by guid + deterministic replay).
 - `eval/` — Phase 8 evaluation harnesses: calibration (Brier/log-loss/ECE vs baselines), the interleaving ablation experiment (honest null + forgetting effect), and the 20x soak/restart test. See `EVAL.md`.
 - `EVAL.md` — calibration results, the interleaving experiment, the soak test, and the documented v0 readiness mapping.
+- `android/` — Phase 5 turn-key build kit: how to build the AnkiDroid backend `.aar` from this fork (submodule re-point), wire AnkiDroid to it, and prove the Speedrun RPCs on the Android backend. See `android/ANDROID.md`.
 
 ## Engine change (Rust, `rslib`) — implemented
 
