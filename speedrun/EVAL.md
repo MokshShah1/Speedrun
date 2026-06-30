@@ -65,8 +65,59 @@ closes (a process restart). After every reopen it asserts:
 - readiness/mastery values are finite and within their bands.
 
 Observed: **PASS — 20 sessions, 580 reviews durable**, no panics or invariant
-breaks. This is the headless half of the "20x crash test"; a hard mid-write kill
-is not yet covered.
+breaks. This is the graceful-restart half of the "20x crash test"; the ungraceful
+mid-write kill is covered separately below.
+
+## 4. Hard-kill crash recovery (`crash_kill.py`)
+
+The soak test restarts cleanly; this one does not. A child process opens the
+collection, commits `K = 40` transfer reviews, prints a `READY` marker, then keeps
+writing in a tight loop. The parent **hard-kills** it (`TerminateProcess` /
+`SIGKILL` — no `finally`, no flush, no `close()`), reopens the file, and asserts:
+
+- the collection opens — no corruption, no stuck SQLite lock,
+- every committed review survived (`count >= K`); SQLite's WAL drops only the
+  single transaction that was in flight at kill time,
+- `sum(n_transfer_obs) == total` still holds after recovery,
+- readiness stays in band, and
+- the collection is **still writable** afterwards (a fresh review increments the
+  count), proving recovery is complete, not just readable.
+
+Observed (`python speedrun/eval/crash_kill.py`): child killed at ~359 committed
+reviews, **all durable, invariants intact, writable after crash — PASS**. Per-op
+transactions plus WAL mean a crash costs at most the one unfinished answer.
+
+## 5. Engine benchmark (`bench.py`, the `make bench` target)
+
+Times the hot paths through the real backend so an accidental `O(n^2)` can't slip
+in unnoticed. Representative run (30 concepts, 6-rung ladder each):
+
+| operation | throughput | per call |
+|---|---|---|
+| `record_transfer_review` | ~900/s | ~1.1 ms |
+| `mastery_query` (all concepts) | ~200/s | ~4.9 ms |
+| `readiness_report` | ~230/s | ~4.3 ms |
+| `transfer_gap_queue` | ~260/s | ~3.9 ms |
+| `export_transfer_log` | ~100/s | ~9.9 ms |
+| `import_transfer_log` (1000 rows) | ~20000/s | ~0.05 ms |
+
+The script enforces soft floors (record ≥ 100/s, dashboard ≥ 20/s) and exits
+non-zero below them, so it gates a build. Recording is a few hundred µs of real
+work plus a transaction; the dashboard recomputes every concept's `R`/`T` from
+scratch — fast enough that a human-paced session never waits.
+
+## 6. Deck auto-tagger (`../tag_deck.py`)
+
+Pre-made decks (MileDown, AnKing) aren't tagged `speedrun::<outline_id>`, so the
+engine can't aggregate their FSRS recall into concept-level `R`. This script maps
+each note to its best AAMC category by IDF-weighted keyword overlap with the
+concept map's titles + topics, plus a bonus for verbatim topic phrases, and is
+conservative (notes under `--min-score` stay untagged rather than mis-tagged).
+`--dry-run` prints the assignment distribution before writing; `--self-test`
+builds a synthetic 6-note MileDown deck and verifies every note lands on the
+right category (Michaelis–Menten → `1A`, glycolysis → `1D`, action potential →
+`3A`, Henderson–Hasselbalch → `5A`, operant conditioning → `7C`, Ohm's law →
+`4C`) — **PASS**.
 
 ## Readiness mapping (v0, documented)
 
@@ -89,16 +140,28 @@ is available.
 
 ## Running everything
 
+A `speedrun/Makefile` wires the harnesses into targets (uses MSYS2 `make` on
+Windows; the Python entrypoints below are equivalent):
+
 ```bash
+make -C speedrun test        # pure unit tests (no backend)
+make -C speedrun bench       # engine perf benchmark (`make bench`)
+make -C speedrun crash       # hard-kill crash recovery
+make -C speedrun eval        # calibration + interleaving + soak
+make -C speedrun tag-test    # deck auto-tagger self-test
+
+# or directly:
 python -m pytest speedrun/eval/test_eval.py   # pure unit tests (no backend)
-python speedrun/eval/calibration.py           # needs tools/ninja pylib first
+python speedrun/eval/bench.py                 # needs tools/ninja pylib first
+python speedrun/eval/crash_kill.py            # needs tools/ninja pylib first
+python speedrun/eval/calibration.py
 python speedrun/eval/interleaving.py
-python speedrun/eval/soak.py                   # needs tools/ninja pylib first
+python speedrun/eval/soak.py
+python speedrun/tag_deck.py --self-test
 ```
 
 ## Still open in Phase 8
 
-- `make bench` target, signed APK + installer, and the demo video need the build
-  tooling / your machine.
-- A hard-kill crash test (process killed mid-write) and calibration against real
-  AAMC practice-test scores remain.
+- Signed APK + installer and the demo video need your machine / device.
+- Calibration against real AAMC practice-test scores remains (the calibration
+  harness is the tool that will consume that data when it exists).
