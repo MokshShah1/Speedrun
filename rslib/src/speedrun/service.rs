@@ -10,6 +10,7 @@ use crate::prelude::*;
 use crate::speedrun::concept_transfer;
 use crate::speedrun::elo_update;
 use crate::speedrun::gap;
+use crate::speedrun::scale_score;
 use crate::speedrun::Concept;
 use crate::speedrun::ConceptState;
 use crate::speedrun::Item;
@@ -78,6 +79,34 @@ impl crate::services::SpeedrunService for Collection {
         self.storage.ensure_speedrun_tables()?;
         self.transfer_gap_queue_inner(input.limit)
     }
+
+    fn readiness_report(
+        &mut self,
+        _input: pb::ReadinessRequest,
+    ) -> Result<pb::ReadinessResponse> {
+        self.storage.ensure_speedrun_tables()?;
+        self.readiness_report_inner()
+    }
+}
+
+/// Per-concept snapshot used to build the readiness report.
+struct ReadinessRow {
+    concept_id: i64,
+    outline_id: String,
+    section: String,
+    weight: f64,
+    recall: f64,
+    transfer: f64,
+    n_obs: i64,
+    covered: bool,
+}
+
+#[derive(Default)]
+struct SectionAccum {
+    weight: f64,
+    weighted_recall: f64,
+    weighted_transfer: f64,
+    covered_weight: f64,
 }
 
 impl Collection {
@@ -190,6 +219,144 @@ impl Collection {
             ids.truncate(limit as usize);
         }
         Ok(pb::TransferGapQueueResponse { concept_ids: ids })
+    }
+
+    fn readiness_report_inner(&mut self) -> Result<pb::ReadinessResponse> {
+        use crate::speedrun::SCORE_MAX;
+        use crate::speedrun::SCORE_MIN;
+        use crate::speedrun::SECTION_SCORE_MAX;
+        use crate::speedrun::SECTION_SCORE_MIN;
+
+        // One pass to snapshot every concept's R, T and observation state.
+        let concepts = self.storage.all_concepts()?;
+        let mut rows: Vec<ReadinessRow> = Vec::with_capacity(concepts.len());
+        for c in &concepts {
+            let state = self.storage.get_concept_state(c.id)?;
+            let theta = state.as_ref().map(|s| s.theta).unwrap_or(0.0);
+            let n_obs = state.as_ref().map(|s| s.n_obs).unwrap_or(0);
+            let recall = self
+                .concept_recall(&c.outline_id)?
+                .or_else(|| state.as_ref().map(|s| s.r_cache))
+                .unwrap_or(0.0);
+            rows.push(ReadinessRow {
+                concept_id: c.id,
+                outline_id: c.outline_id.clone(),
+                section: c.section.clone(),
+                weight: c.exam_weight,
+                recall,
+                transfer: concept_transfer(theta),
+                n_obs,
+                covered: n_obs > 0,
+            });
+        }
+
+        // Aggregate per section (BTreeMap for deterministic ordering).
+        let mut sections: std::collections::BTreeMap<String, SectionAccum> = Default::default();
+        let mut total = SectionAccum::default();
+        for r in &rows {
+            let acc = sections.entry(r.section.clone()).or_default();
+            acc.weight += r.weight;
+            acc.weighted_recall += r.weight * r.recall;
+            acc.weighted_transfer += r.weight * r.transfer;
+            if r.covered {
+                acc.covered_weight += r.weight;
+            }
+            total.weight += r.weight;
+            total.weighted_recall += r.weight * r.recall;
+            total.weighted_transfer += r.weight * r.transfer;
+            if r.covered {
+                total.covered_weight += r.weight;
+            }
+        }
+
+        let safe = |num: f64, den: f64| if den > 0.0 { num / den } else { 0.0 };
+        let span = (SCORE_MAX - SCORE_MIN) as f64;
+        let coverage = safe(total.covered_weight, total.weight);
+
+        let mut section_reports = Vec::with_capacity(sections.len());
+        for (name, acc) in &sections {
+            let performance = safe(acc.weighted_transfer, acc.weight);
+            let memory = safe(acc.weighted_recall, acc.weight);
+            let sec_cov = safe(acc.covered_weight, acc.weight);
+            let score = scale_score(performance, SECTION_SCORE_MIN, SECTION_SCORE_MAX);
+            let sec_span = (SECTION_SCORE_MAX - SECTION_SCORE_MIN) as f64;
+            let half = (sec_span * 0.5 * (1.0 - sec_cov)).round() as i32;
+            section_reports.push(pb::SectionReadiness {
+                section: name.clone(),
+                memory,
+                performance,
+                score,
+                score_low: (score - half).max(SECTION_SCORE_MIN),
+                score_high: (score + half).min(SECTION_SCORE_MAX),
+                coverage: sec_cov,
+            });
+        }
+
+        let memory = safe(total.weighted_recall, total.weight);
+        let performance = safe(total.weighted_transfer, total.weight);
+        let readiness = scale_score(performance, SCORE_MIN, SCORE_MAX);
+        // Range widens as coverage drops: a small floor of uncertainty plus a
+        // term proportional to the un-observed share of the exam.
+        let half_width = (span * 0.08).round() as i32 + (span * 0.5 * (1.0 - coverage)).round() as i32;
+
+        // Give-up list and reasons.
+        let give_up: Vec<i64> = rows
+            .iter()
+            .filter(|r| {
+                r.n_obs >= crate::speedrun::GIVE_UP_MIN_OBS
+                    && r.transfer < crate::speedrun::GIVE_UP_TRANSFER
+            })
+            .map(|r| r.concept_id)
+            .collect();
+
+        let covered_count = rows.iter().filter(|r| r.covered).count();
+        let mut reasons = vec![format!(
+            "Coverage {:.0}% - {} of {} concepts have transfer data.",
+            coverage * 100.0,
+            covered_count,
+            rows.len()
+        )];
+        if performance + 0.10 < memory {
+            reasons.push(format!(
+                "Illusion of mastery: memory {:.0}% but performance {:.0}% - study transfer, not more recall.",
+                memory * 100.0,
+                performance * 100.0
+            ));
+        }
+        if let Some(top) = rows
+            .iter()
+            .max_by(|a, b| {
+                (a.weight * (a.recall - a.transfer))
+                    .partial_cmp(&(b.weight * (b.recall - b.transfer)))
+                    .unwrap_or(std::cmp::Ordering::Equal)
+            })
+            .filter(|r| r.recall - r.transfer > 0.0)
+        {
+            reasons.push(format!(
+                "Largest weighted gap: {} (G={:.2}). Start here.",
+                top.outline_id,
+                top.recall - top.transfer
+            ));
+        }
+        if !give_up.is_empty() {
+            reasons.push(format!(
+                "{} concept(s) flagged by the give-up rule (transfer still low after {}+ attempts).",
+                give_up.len(),
+                crate::speedrun::GIVE_UP_MIN_OBS
+            ));
+        }
+
+        Ok(pb::ReadinessResponse {
+            memory,
+            performance,
+            readiness,
+            readiness_low: (readiness - half_width).max(SCORE_MIN),
+            readiness_high: (readiness + half_width).min(SCORE_MAX),
+            coverage,
+            sections: section_reports,
+            reasons,
+            give_up_concept_ids: give_up,
+        })
     }
 }
 
@@ -319,6 +486,61 @@ mod test {
         assert!((m.entries[0].gap - (m.entries[0].recall - m.entries[0].transfer)).abs() < 1e-9);
         assert!(m.entries[0].gap > 0.4, "gap = {}", m.entries[0].gap);
         Ok(())
+    }
+
+    #[test]
+    fn readiness_report_scores_and_give_up_rule() -> Result<()> {
+        use crate::speedrun::SCORE_MAX;
+        use crate::speedrun::SCORE_MIN;
+
+        let mut col = open_col();
+        add_concept(&mut col, 1, 0.5);
+        add_concept(&mut col, 2, 0.5);
+
+        // Empty: no observations -> coverage 0 and the widest range. Readiness
+        // reflects the prior transfer (theta 0), so it is within the band.
+        let empty = SpeedrunService::readiness_report(&mut col, pb::ReadinessRequest {})?;
+        assert!(empty.readiness >= SCORE_MIN && empty.readiness <= SCORE_MAX);
+        assert!((empty.coverage - 0.0).abs() < 1e-9);
+        let empty_width = empty.readiness_high - empty.readiness_low;
+
+        // Concept 1: strong transfer. Concept 2: many failed attempts -> give-up.
+        col.storage.upsert_concept_state(&ConceptState {
+            concept_id: 1,
+            theta: 3.0,
+            n_obs: 5,
+            r_cache: 0.0,
+            last_practiced: 0,
+        })?;
+        col.storage.upsert_concept_state(&ConceptState {
+            concept_id: 2,
+            theta: -3.0,
+            n_obs: 12,
+            r_cache: 0.0,
+            last_practiced: 0,
+        })?;
+
+        let report = SpeedrunService::readiness_report(&mut col, pb::ReadinessRequest {})?;
+        assert!(report.readiness > SCORE_MIN && report.readiness <= SCORE_MAX);
+        assert!(report.performance > 0.0);
+        assert!(report.coverage > 0.0);
+        assert!(report.readiness_low <= report.readiness);
+        assert!(report.readiness_high >= report.readiness);
+        // Concept 2 meets the give-up rule (>=8 obs, transfer < 0.35).
+        assert!(report.give_up_concept_ids.contains(&2));
+        assert!(!report.give_up_concept_ids.contains(&1));
+        assert!(!report.reasons.is_empty());
+        // Some coverage should narrow the range versus the empty report.
+        assert!(report.readiness_high - report.readiness_low <= empty_width);
+        Ok(())
+    }
+
+    #[test]
+    fn scale_score_maps_fraction_to_band() {
+        assert_eq!(scale_score(0.0, 472, 528), 472);
+        assert_eq!(scale_score(1.0, 472, 528), 528);
+        assert_eq!(scale_score(0.5, 472, 528), 500);
+        assert_eq!(scale_score(2.0, 472, 528), 528); // clamped
     }
 
     #[test]

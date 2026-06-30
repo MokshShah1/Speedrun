@@ -22,6 +22,27 @@ pub const REPRESENTATIVE_DIFFICULTY: f64 = 0.5;
 /// or unlucky answer cannot swing the estimate too far.
 pub const ELO_K: f64 = 0.3;
 
+/// MCAT total score band.
+pub const SCORE_MIN: i32 = 472;
+pub const SCORE_MAX: i32 = 528;
+/// Per-section score band.
+pub const SECTION_SCORE_MIN: i32 = 118;
+pub const SECTION_SCORE_MAX: i32 = 132;
+
+/// Give-up rule defaults (confirmed in the PRD): a concept with at least this
+/// many transfer observations whose transfer probability is still below
+/// `GIVE_UP_TRANSFER` is flagged for deprioritisation.
+pub const GIVE_UP_MIN_OBS: i64 = 8;
+pub const GIVE_UP_TRANSFER: f64 = 0.35;
+
+/// Map a 0..1 ability fraction onto an MCAT score band `[lo, hi]`. This is the
+/// v0 readiness mapping (linear in transfer); it is intentionally explicit so
+/// it can be replaced by the calibrated mapping in the prove/ship phase.
+pub fn scale_score(fraction: f64, lo: i32, hi: i32) -> i32 {
+    let f = fraction.clamp(0.0, 1.0);
+    lo + ((hi - lo) as f64 * f).round() as i32
+}
+
 /// A concept, mapped 1:1 to the AAMC content outline. The engine's unit of
 /// mastery (not a card).
 #[derive(Debug, Clone, PartialEq)]

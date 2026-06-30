@@ -78,9 +78,39 @@ def import_seed_items(col: Collection, code_to_id: dict[str, int]) -> int:
     return count
 
 
+def run_demo_reviews(col: Collection) -> None:
+    """Record a few graded transfer answers so the dashboard has signal."""
+    data = load_json("seed_items.json")
+    # Answer the first eight items: lower ladder levels correct, harder ones
+    # missed - the realistic "can recall, can't yet transfer" pattern.
+    for i, item in enumerate(data["items"][:8], start=1):
+        correct = int(item["level"]) <= 2
+        col._backend.record_transfer_review(
+            item_id=i, concept_id=1, correct=correct, latency_ms=5000
+        )
+
+
+def print_readiness(col: Collection) -> None:
+    r = col._backend.readiness_report()
+    print()
+    print(f"  Readiness: {r.readiness}  ({r.readiness_low}-{r.readiness_high}, "
+          f"472-528 scale)")
+    print(f"  Memory (R):      {r.memory*100:5.1f}%")
+    print(f"  Performance (T): {r.performance*100:5.1f}%")
+    print(f"  Coverage:        {r.coverage*100:5.1f}%")
+    for s in r.sections:
+        print(f"    {s.section:<14} score {s.score} ({s.score_low}-{s.score_high}) "
+              f"M={s.memory*100:.0f}% T={s.performance*100:.0f}%")
+    print("  Reasons:")
+    for reason in r.reasons:
+        print(f"    - {reason}")
+
+
 def main() -> None:
-    if len(sys.argv) > 1:
-        path = sys.argv[1]
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    demo = "--demo" in sys.argv
+    if args:
+        path = args[0]
         created_temp = False
     else:
         fd, path = tempfile.mkstemp(suffix=".anki2")
@@ -100,6 +130,10 @@ def main() -> None:
         queue = list(col._backend.transfer_gap_queue(limit=5))
         print(f"transfer-gap queue (top 5 concept ids): {queue}")
         assert len(mastery.entries) == len(code_to_id)
+
+        if demo:
+            run_demo_reviews(col)
+            print_readiness(col)
     finally:
         col.close()
         if created_temp:

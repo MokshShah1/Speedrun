@@ -29,6 +29,9 @@ service SpeedrunService {
   // gaps first) - the transfer-gap study queue.
   rpc TransferGapQueue(TransferGapQueueRequest)
       returns (TransferGapQueueResponse);
+  // The dashboard: three honest scores (Memory, Performance, Readiness) with
+  // ranges, coverage, plain-language reasons and the give-up list.
+  rpc ReadinessReport(ReadinessRequest) returns (ReadinessResponse);
 }
 
 service BackendSpeedrunService {}
@@ -90,4 +93,38 @@ message TransferGapQueueRequest {
 
 message TransferGapQueueResponse {
   repeated int64 concept_ids = 1;
+}
+
+message ReadinessRequest {}
+
+message SectionReadiness {
+  // AAMC section short name (e.g. "Bio/Biochem").
+  string section = 1;
+  // Weighted mean recall R (0..1).
+  double memory = 2;
+  // Weighted mean transfer T (0..1).
+  double performance = 3;
+  // Section scaled score (118..132).
+  int32 score = 4;
+  int32 score_low = 5;
+  int32 score_high = 6;
+  double coverage = 7;
+}
+
+message ReadinessResponse {
+  // Weighted mean recall across all in-scope concepts (0..1).
+  double memory = 1;
+  // Weighted mean transfer across all in-scope concepts (0..1).
+  double performance = 2;
+  // Predicted total MCAT score (472..528), built on transfer T.
+  int32 readiness = 3;
+  int32 readiness_low = 4;
+  int32 readiness_high = 5;
+  // Weighted fraction of the exam with transfer observations.
+  double coverage = 6;
+  repeated SectionReadiness sections = 7;
+  // Plain-language explanations shown under the scores.
+  repeated string reasons = 8;
+  // Concepts that meet the give-up rule (many attempts, transfer still low).
+  repeated int64 give_up_concept_ids = 9;
 }
