@@ -13,15 +13,36 @@ License: GNU AGPL-3.0-or-later (inherited from Anki). Some Anki components are B
 ## This folder (`speedrun/`)
 App-specific assets that ship with the fork, kept separate from upstream Anki code:
 
-- `data/concepts.json` — the AAMC content-outline concept map (the coverage backbone). 28 in-scope content categories across Bio/Biochem, Chem/Phys, Psych/Soc (CARS excluded). `exam_weight` is a tunable uniform-within-section prior to be refined against AAMC's published distributions.
+- `data/concepts.json` — the AAMC content-outline concept map (the coverage backbone). 31 in-scope content categories across Bio/Biochem, Chem/Phys, Psych/Soc (CARS excluded). `exam_weight` is a tunable uniform-within-section prior to be refined against AAMC's published distributions.
 - `data/seed_items.json` — hand-authored transfer items (no AI) spanning ladder levels L0-L5, used for the Wednesday review loop. Same schema the Friday AI generator targets.
+- `import_content.py` — loads the concept map + seed items into a collection through the engine RPCs (`upsert_concept` / `upsert_item`). Run after a build: `python speedrun/import_content.py [collection.anki2]`. With no path it creates a throwaway collection and prints a verification summary (concept count, coverage, gap queue).
+- `ENGINE.md` — the Phase 2 engine: what it does, why it lives in Rust, files touched, and the test/undo proof.
 
-## Planned engine change (Rust, `rslib`)
-A new protobuf service exposing:
-- `MasteryQuery(concept_ids) -> {R, T, G, n_transfer_obs, coverage}` for the dashboard.
-- A transfer-gap review queue ordered by `exam_weight x G`.
+## Engine change (Rust, `rslib`) — implemented
 
-New collection tables: `concept`, `item`, `transfer_review`, `concept_state` (T/theta stored in the collection DB so it syncs to the phone). See `../PRD` equivalents and the project PRD.
+A protobuf `SpeedrunService` (see `proto/anki/speedrun.proto`) exposing:
+- `UpsertConcept` / `UpsertItem` — load the concept map and items.
+- `RecordTransferReview` — grade a transfer item; updates concept ability via an online Elo/1-PL-IRT step. Transactional and undoable.
+- `MasteryQuery(concept_ids) -> {R, T, G, theta, n_transfer_obs, coverage}` for the dashboard.
+- `TransferGapQueue(limit) -> [concept_id]` ordered by `exam_weight x G`.
+
+Collection tables: `concept`, `speedrun_item`, `transfer_review`, `concept_state` (theta stored in the collection DB; each carries `usn` for later sync). Created idempotently to avoid touching Anki's schema-version invariants — see `ENGINE.md`.
+
+## Concept tagging convention (for decks)
+
+R (recall) is aggregated to a concept from the FSRS state of the cards that
+teach it. Cards are linked to a concept by an Anki **note tag**:
+
+```
+speedrun::<AAMC_CODE>      e.g.  speedrun::1D
+```
+
+Any premade deck (the project's seed deck is **MileDown**) is brought in scope
+by importing its `.apkg` normally, then ensuring its notes carry the matching
+`speedrun::<code>` tag. Coverage and the per-concept recall used in `G = R - T`
+then read straight from those tagged cards (wired in the desktop phase). This
+keeps the deck↔concept mapping in standard Anki tags rather than a bespoke
+table, so it survives import/export and sync unchanged.
 
 ## Build
 See Anki's docs: `docs/development.md` and `docs/windows.md`. In short, on Windows you need Rust (rustup), MSVC Build Tools + Windows SDK, MSYS2 (`git`, `rsync`) on PATH, and N2/Ninja (`bash tools/install-n2`). Then `.\run` from the repo root.
