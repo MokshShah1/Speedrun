@@ -32,6 +32,11 @@ service SpeedrunService {
   // The dashboard: three honest scores (Memory, Performance, Readiness) with
   // ranges, coverage, plain-language reasons and the give-up list.
   rpc ReadinessReport(ReadinessRequest) returns (ReadinessResponse);
+  // Pick the next transfer item to study. With concept_id = 0 the top of the
+  // transfer-gap queue is used; otherwise the given concept. Returns the
+  // lowest unmastered ladder level for that concept.
+  rpc NextTransferItem(NextTransferItemRequest)
+      returns (NextTransferItemResponse);
 }
 
 service BackendSpeedrunService {}
@@ -55,6 +60,12 @@ message Item {
   double difficulty = 4;
   string source_ref = 5;
   bool ai_generated = 6;
+  // Question content.
+  string stem = 7;
+  repeated string choices = 8;
+  // Index into choices of the correct answer.
+  uint32 answer = 9;
+  string explanation = 10;
 }
 
 message RecordTransferReviewRequest {
@@ -93,6 +104,17 @@ message TransferGapQueueRequest {
 
 message TransferGapQueueResponse {
   repeated int64 concept_ids = 1;
+}
+
+message NextTransferItemRequest {
+  // 0 = pick the highest-gap concept from the queue.
+  int64 concept_id = 1;
+}
+
+message NextTransferItemResponse {
+  bool found = 1;
+  Item item = 2;
+  int64 concept_id = 3;
 }
 
 message ReadinessRequest {}

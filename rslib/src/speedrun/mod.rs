@@ -64,6 +64,11 @@ pub struct Item {
     pub difficulty: f64,
     pub source_ref: String,
     pub ai_generated: bool,
+    pub stem: String,
+    pub choices: Vec<String>,
+    /// Index into `choices` of the correct answer.
+    pub answer: u32,
+    pub explanation: String,
 }
 
 /// One graded answer to a transfer item.

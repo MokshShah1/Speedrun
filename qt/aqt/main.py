@@ -1448,10 +1448,12 @@ title="{}" {}>{}</button>""".format(
         qconnect(m.action_check_for_updates.triggered, self.on_check_for_updates)
         qconnect(m.actionPreferences.triggered, self.onPrefs)
 
-        # Speedrun: transfer-engine dashboard (3 scores + coverage + give-up).
+        # Speedrun: transfer-engine dashboard + transfer review loop.
         from aqt import speedrun as speedrun_dashboard
+        from aqt import transfer_reviewer as speedrun_reviewer
 
         speedrun_dashboard.add_dashboard_action(self)
+        speedrun_reviewer.add_reviewer_action(self)
 
         # View
         qconnect(

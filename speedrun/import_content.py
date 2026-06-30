@@ -72,6 +72,10 @@ def import_seed_items(col: Collection, code_to_id: dict[str, int]) -> int:
                 difficulty=float(item["b"]),
                 source_ref=item.get("source_ref", ""),
                 ai_generated=bool(item.get("ai_generated", False)),
+                stem=item.get("stem", ""),
+                choices=list(item.get("choices", [])),
+                answer=int(item.get("answer", 0)),
+                explanation=item.get("explanation", ""),
             )
         )
         count += 1
@@ -132,6 +136,10 @@ def main() -> None:
         assert len(mastery.entries) == len(code_to_id)
 
         if demo:
+            nxt = col._backend.next_transfer_item(concept_id=0)
+            if nxt.found:
+                print(f"\nnext_transfer_item (concept {nxt.concept_id}, "
+                      f"L{nxt.item.level}): {nxt.item.stem[:70]}...")
             run_demo_reviews(col)
             print_readiness(col)
     finally:

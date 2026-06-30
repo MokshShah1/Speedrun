@@ -27,12 +27,22 @@ def test_transfer_engine_record_query_and_undo():
         pb.Item(
             id=10,
             concept_id=1,
-            level=3,
+            level=1,
             difficulty=0.0,
             source_ref="Lehninger Ch. 14",
             ai_generated=False,
+            stem="Glycolysis nets how many ATP per glucose?",
+            choices=["2", "0", "4", "38"],
+            answer=0,
+            explanation="Consumes 2, produces 4.",
         )
     )
+
+    # The reviewer pulls this item (only concept with content).
+    nxt = col._backend.next_transfer_item(concept_id=0)
+    assert nxt.found
+    assert nxt.item.id == 10
+    assert nxt.item.choices[nxt.item.answer] == "2"
 
     before = col._backend.mastery_query(concept_ids=[1])
     assert len(before.entries) == 1

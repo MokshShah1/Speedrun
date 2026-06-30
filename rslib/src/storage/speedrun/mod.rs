@@ -67,11 +67,13 @@ impl SqliteStorage {
     }
 
     pub(crate) fn upsert_item(&self, i: &Item) -> Result<()> {
+        let choices_json = serde_json::to_string(&i.choices).unwrap_or_else(|_| "[]".into());
         self.db
             .prepare_cached(
                 "INSERT OR REPLACE INTO speedrun_item
-                   (id, concept_id, level, difficulty, source_ref, ai_generated, usn, mtime_secs)
-                 VALUES (?, ?, ?, ?, ?, ?, 0, 0)",
+                   (id, concept_id, level, difficulty, source_ref, ai_generated,
+                    stem, choices, answer, explanation, usn, mtime_secs)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0)",
             )?
             .execute(params![
                 i.id,
@@ -80,6 +82,10 @@ impl SqliteStorage {
                 i.difficulty,
                 i.source_ref,
                 i.ai_generated as i64,
+                i.stem,
+                choices_json,
+                i.answer,
+                i.explanation,
             ])?;
         Ok(())
     }
@@ -87,10 +93,24 @@ impl SqliteStorage {
     pub(crate) fn get_item(&self, id: i64) -> Result<Option<Item>> {
         self.db
             .prepare_cached(
-                "SELECT id, concept_id, level, difficulty, source_ref, ai_generated
+                "SELECT id, concept_id, level, difficulty, source_ref, ai_generated,
+                        stem, choices, answer, explanation
                  FROM speedrun_item WHERE id = ?",
             )?
             .query_and_then([id], row_to_item)?
+            .next()
+            .transpose()
+    }
+
+    /// The lowest-ladder-level item for a concept (the rung to teach next).
+    pub(crate) fn lowest_level_item(&self, concept_id: i64) -> Result<Option<Item>> {
+        self.db
+            .prepare_cached(
+                "SELECT id, concept_id, level, difficulty, source_ref, ai_generated,
+                        stem, choices, answer, explanation
+                 FROM speedrun_item WHERE concept_id = ? ORDER BY level, id LIMIT 1",
+            )?
+            .query_and_then([concept_id], row_to_item)?
             .next()
             .transpose()
     }
@@ -182,6 +202,7 @@ fn row_to_concept(row: &rusqlite::Row) -> Result<Concept> {
 }
 
 fn row_to_item(row: &rusqlite::Row) -> Result<Item> {
+    let choices_json: String = row.get(7)?;
     Ok(Item {
         id: row.get(0)?,
         concept_id: row.get(1)?,
@@ -189,6 +210,10 @@ fn row_to_item(row: &rusqlite::Row) -> Result<Item> {
         difficulty: row.get(3)?,
         source_ref: row.get(4)?,
         ai_generated: row.get::<_, i64>(5)? != 0,
+        stem: row.get(6)?,
+        choices: serde_json::from_str(&choices_json).unwrap_or_default(),
+        answer: row.get(8)?,
+        explanation: row.get(9)?,
     })
 }
 

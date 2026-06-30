@@ -15,6 +15,10 @@ CREATE TABLE IF NOT EXISTS speedrun_item (
   difficulty real NOT NULL,
   source_ref text NOT NULL,
   ai_generated integer NOT NULL DEFAULT 0,
+  stem text NOT NULL DEFAULT '',
+  choices text NOT NULL DEFAULT '[]',
+  answer integer NOT NULL DEFAULT 0,
+  explanation text NOT NULL DEFAULT '',
   usn integer NOT NULL DEFAULT 0,
   mtime_secs integer NOT NULL DEFAULT 0
 );

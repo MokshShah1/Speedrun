@@ -44,6 +44,10 @@ impl crate::services::SpeedrunService for Collection {
             difficulty: input.difficulty,
             source_ref: input.source_ref,
             ai_generated: input.ai_generated,
+            stem: input.stem,
+            choices: input.choices,
+            answer: input.answer,
+            explanation: input.explanation,
         };
         self.transact(Op::Custom("Upsert transfer item".into()), |col| {
             col.storage.upsert_item(&item)
@@ -86,6 +90,52 @@ impl crate::services::SpeedrunService for Collection {
     ) -> Result<pb::ReadinessResponse> {
         self.storage.ensure_speedrun_tables()?;
         self.readiness_report_inner()
+    }
+
+    fn next_transfer_item(
+        &mut self,
+        input: pb::NextTransferItemRequest,
+    ) -> Result<pb::NextTransferItemResponse> {
+        self.storage.ensure_speedrun_tables()?;
+        if input.concept_id != 0 {
+            let item = self.storage.lowest_level_item(input.concept_id)?;
+            return Ok(pb::NextTransferItemResponse {
+                found: item.is_some(),
+                item: item.map(item_to_proto),
+                concept_id: input.concept_id,
+            });
+        }
+        // Walk the transfer-gap queue and return the first concept that
+        // actually has an authored item to study.
+        for concept_id in self.transfer_gap_queue_inner(0)?.concept_ids {
+            if let Some(item) = self.storage.lowest_level_item(concept_id)? {
+                return Ok(pb::NextTransferItemResponse {
+                    found: true,
+                    item: Some(item_to_proto(item)),
+                    concept_id,
+                });
+            }
+        }
+        Ok(pb::NextTransferItemResponse {
+            found: false,
+            item: None,
+            concept_id: 0,
+        })
+    }
+}
+
+fn item_to_proto(i: Item) -> pb::Item {
+    pb::Item {
+        id: i.id,
+        concept_id: i.concept_id,
+        level: i.level,
+        difficulty: i.difficulty,
+        source_ref: i.source_ref,
+        ai_generated: i.ai_generated,
+        stem: i.stem,
+        choices: i.choices,
+        answer: i.answer,
+        explanation: i.explanation,
     }
 }
 
@@ -395,6 +445,10 @@ mod test {
                 difficulty,
                 source_ref: "seed".into(),
                 ai_generated: false,
+                stem: "stem".into(),
+                choices: vec!["a".into(), "b".into()],
+                answer: 0,
+                explanation: "because".into(),
             },
         )
         .unwrap();
@@ -541,6 +595,50 @@ mod test {
         assert_eq!(scale_score(1.0, 472, 528), 528);
         assert_eq!(scale_score(0.5, 472, 528), 500);
         assert_eq!(scale_score(2.0, 472, 528), 528); // clamped
+    }
+
+    #[test]
+    fn next_transfer_item_returns_lowest_level_and_round_trips_content() -> Result<()> {
+        let mut col = open_col();
+        add_concept(&mut col, 1, 0.5);
+        // Add an L3 then an L0 item; the L0 (lowest rung) should come first.
+        add_item(&mut col, 50, 1, 0.4); // level 3 per helper
+        let _ = SpeedrunService::upsert_item(
+            &mut col,
+            pb::Item {
+                id: 51,
+                concept_id: 1,
+                level: 0,
+                difficulty: -1.5,
+                source_ref: "seed".into(),
+                ai_generated: false,
+                stem: "Glycolysis is best defined as:".into(),
+                choices: vec!["breakdown of glucose".into(), "synthesis".into()],
+                answer: 0,
+                explanation: "definition".into(),
+            },
+        )?;
+
+        let resp = SpeedrunService::next_transfer_item(
+            &mut col,
+            pb::NextTransferItemRequest { concept_id: 1 },
+        )?;
+        assert!(resp.found);
+        let item = resp.item.unwrap();
+        assert_eq!(item.id, 51);
+        assert_eq!(item.level, 0);
+        assert_eq!(item.stem, "Glycolysis is best defined as:");
+        assert_eq!(item.choices.len(), 2);
+        assert_eq!(item.answer, 0);
+
+        // concept_id = 0 falls back to the gap queue (only concept 1 exists).
+        let from_queue = SpeedrunService::next_transfer_item(
+            &mut col,
+            pb::NextTransferItemRequest { concept_id: 0 },
+        )?;
+        assert!(from_queue.found);
+        assert_eq!(from_queue.concept_id, 1);
+        Ok(())
     }
 
     #[test]
