@@ -317,6 +317,10 @@ impl From<&[UndoableChange]> for StateChanges {
                 UndoableChange::DeckConfig(_) => out.deck_config = true,
                 UndoableChange::Collection(_) => {}
                 UndoableChange::Notetype(_) => out.notetype = true,
+                // Speedrun transfer data isn't part of Anki's core
+                // StateChanges; the dashboard refetches explicitly. mtime is
+                // still bumped above when any change is present.
+                UndoableChange::Speedrun(_) => {}
             }
         }
         out

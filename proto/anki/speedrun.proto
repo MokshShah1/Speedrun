@@ -1,0 +1,93 @@
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
+
+// Speedrun transfer engine: per-concept transfer (T), recall (R) and the gap
+// G = R - T. This is the headline change over upstream Anki.
+
+syntax = "proto3";
+
+option java_multiple_files = true;
+
+package anki.speedrun;
+
+import "anki/generic.proto";
+import "anki/collection.proto";
+
+service SpeedrunService {
+  // Insert or update a concept (mapped 1:1 to the AAMC content outline).
+  rpc UpsertConcept(Concept) returns (collection.OpChanges);
+  // Insert or update a transfer item (a question at a ladder level).
+  rpc UpsertItem(Item) returns (collection.OpChanges);
+  // Record the result of answering a transfer item; updates the concept's
+  // ability (theta) via an online Elo/IRT update. Undoable.
+  rpc RecordTransferReview(RecordTransferReviewRequest)
+      returns (collection.OpChanges);
+  // Return R, T, G and observation counts for the requested concepts (or all
+  // concepts when none are given), plus weighted exam coverage.
+  rpc MasteryQuery(MasteryQueryRequest) returns (MasteryQueryResponse);
+  // Return concept ids ordered by descending exam_weight * G (highest-value
+  // gaps first) - the transfer-gap study queue.
+  rpc TransferGapQueue(TransferGapQueueRequest)
+      returns (TransferGapQueueResponse);
+}
+
+service BackendSpeedrunService {}
+
+message Concept {
+  int64 id = 1;
+  // AAMC outline code, e.g. "1D".
+  string outline_id = 2;
+  string section = 3;
+  string title = 4;
+  // Share of the whole exam; used for coverage and readiness weighting.
+  double exam_weight = 5;
+}
+
+message Item {
+  int64 id = 1;
+  int64 concept_id = 2;
+  // Ladder level 0..5 (L0 definition .. L5 full passage).
+  uint32 level = 3;
+  // Item difficulty b (frozen after authoring) for the IRT transfer model.
+  double difficulty = 4;
+  string source_ref = 5;
+  bool ai_generated = 6;
+}
+
+message RecordTransferReviewRequest {
+  int64 item_id = 1;
+  int64 concept_id = 2;
+  bool correct = 3;
+  uint32 latency_ms = 4;
+}
+
+message MasteryQueryRequest {
+  // When empty, every known concept is returned.
+  repeated int64 concept_ids = 1;
+}
+
+message ConceptMastery {
+  int64 concept_id = 1;
+  // Recall probability from FSRS (aggregated to the concept).
+  double recall = 2;
+  // Transfer probability at a representative MCAT difficulty.
+  double transfer = 3;
+  // Gap G = R - T.
+  double gap = 4;
+  uint32 n_transfer_obs = 5;
+  double theta = 6;
+}
+
+message MasteryQueryResponse {
+  repeated ConceptMastery entries = 1;
+  // Weighted fraction of the exam with at least one transfer observation.
+  double coverage = 2;
+}
+
+message TransferGapQueueRequest {
+  uint32 limit = 1;
+}
+
+message TransferGapQueueResponse {
+  repeated int64 concept_ids = 1;
+}

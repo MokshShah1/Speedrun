@@ -11,6 +11,7 @@ use crate::notetype::undo::UndoableNotetypeChange;
 use crate::prelude::*;
 use crate::revlog::undo::UndoableRevlogChange;
 use crate::scheduler::queue::undo::UndoableQueueChange;
+use crate::speedrun::undo::UndoableSpeedrunChange;
 use crate::tags::undo::UndoableTagChange;
 
 #[derive(Debug)]
@@ -25,6 +26,7 @@ pub(crate) enum UndoableChange {
     Config(UndoableConfigChange),
     Collection(UndoableCollectionChange),
     Notetype(UndoableNotetypeChange),
+    Speedrun(UndoableSpeedrunChange),
 }
 
 impl UndoableChange {
@@ -40,6 +42,7 @@ impl UndoableChange {
             UndoableChange::DeckConfig(c) => col.undo_deck_config_change(c),
             UndoableChange::Collection(c) => col.undo_collection_change(c),
             UndoableChange::Notetype(c) => col.undo_notetype_change(c),
+            UndoableChange::Speedrun(c) => col.undo_speedrun_change(c),
         }
     }
 }
@@ -101,5 +104,11 @@ impl From<UndoableCollectionChange> for UndoableChange {
 impl From<UndoableNotetypeChange> for UndoableChange {
     fn from(c: UndoableNotetypeChange) -> Self {
         UndoableChange::Notetype(c)
+    }
+}
+
+impl From<UndoableSpeedrunChange> for UndoableChange {
+    fn from(c: UndoableSpeedrunChange) -> Self {
+        UndoableChange::Speedrun(c)
     }
 }
