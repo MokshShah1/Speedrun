@@ -37,6 +37,11 @@ service SpeedrunService {
   // lowest unmastered ladder level for that concept.
   rpc NextTransferItem(NextTransferItemRequest)
       returns (NextTransferItemResponse);
+  // Export this device's append-only transfer-review log (the sync payload).
+  rpc ExportTransferLog(ExportTransferLogRequest) returns (TransferLog);
+  // Merge a peer's transfer-review log into this device (union by guid) and
+  // replay affected concepts. Idempotent.
+  rpc ImportTransferLog(TransferLog) returns (ImportTransferLogResponse);
 }
 
 service BackendSpeedrunService {}
@@ -115,6 +120,32 @@ message NextTransferItemResponse {
   bool found = 1;
   Item item = 2;
   int64 concept_id = 3;
+}
+
+message ExportTransferLogRequest {}
+
+// One transfer review as it travels between devices. `guid` is the cross-device
+// identity; the local row id is deliberately omitted because it is device-local.
+message TransferReviewProto {
+  string guid = 1;
+  int64 item_id = 2;
+  int64 concept_id = 3;
+  bool correct = 4;
+  int64 latency_ms = 5;
+  // Answer time in epoch milliseconds; the canonical replay sort key (with guid
+  // as a tiebreak).
+  int64 ts = 6;
+}
+
+message TransferLog {
+  repeated TransferReviewProto reviews = 1;
+}
+
+message ImportTransferLogResponse {
+  // Reviews that were new to this device.
+  uint32 added = 1;
+  // Total reviews held after the merge.
+  uint32 total = 2;
 }
 
 message ReadinessRequest {}

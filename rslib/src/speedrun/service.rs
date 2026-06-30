@@ -8,14 +8,12 @@ use anki_proto::speedrun as pb;
 use crate::ops::Op;
 use crate::prelude::*;
 use crate::speedrun::concept_transfer;
-use crate::speedrun::elo_update;
 use crate::speedrun::gap;
 use crate::speedrun::scale_score;
 use crate::speedrun::Concept;
 use crate::speedrun::ConceptState;
 use crate::speedrun::Item;
 use crate::speedrun::TransferReview;
-use crate::speedrun::ELO_K;
 use crate::timestamp::TimestampMillis;
 use crate::timestamp::TimestampSecs;
 
@@ -122,6 +120,48 @@ impl crate::services::SpeedrunService for Collection {
             concept_id: 0,
         })
     }
+
+    fn export_transfer_log(
+        &mut self,
+        _input: pb::ExportTransferLogRequest,
+    ) -> Result<pb::TransferLog> {
+        let reviews = Collection::export_transfer_log(self)?
+            .into_iter()
+            .map(|r| pb::TransferReviewProto {
+                guid: r.guid,
+                item_id: r.item_id,
+                concept_id: r.concept_id,
+                correct: r.correct,
+                latency_ms: r.latency_ms,
+                ts: r.ts,
+            })
+            .collect();
+        Ok(pb::TransferLog { reviews })
+    }
+
+    fn import_transfer_log(
+        &mut self,
+        input: pb::TransferLog,
+    ) -> Result<pb::ImportTransferLogResponse> {
+        let incoming = input
+            .reviews
+            .into_iter()
+            .map(|r| TransferReview {
+                id: 0, // assigned locally on insert
+                guid: r.guid,
+                item_id: r.item_id,
+                concept_id: r.concept_id,
+                correct: r.correct,
+                latency_ms: r.latency_ms,
+                ts: r.ts,
+            })
+            .collect();
+        let stats = Collection::import_transfer_log(self, incoming)?;
+        Ok(pb::ImportTransferLogResponse {
+            added: stats.added,
+            total: stats.total,
+        })
+    }
 }
 
 fn item_to_proto(i: Item) -> pb::Item {
@@ -167,27 +207,14 @@ impl Collection {
         correct: bool,
         latency_ms: i64,
     ) -> Result<()> {
-        let difficulty = self
-            .storage
-            .get_item(item_id)?
-            .map(|i| i.difficulty)
-            .unwrap_or(crate::speedrun::REPRESENTATIVE_DIFFICULTY);
-
         let previous = self.storage.get_concept_state(concept_id)?;
-        let theta0 = previous.as_ref().map(|s| s.theta).unwrap_or(0.0);
-        let new_state = ConceptState {
-            concept_id,
-            theta: elo_update(theta0, difficulty, correct, ELO_K),
-            n_obs: previous.as_ref().map(|s| s.n_obs).unwrap_or(0) + 1,
-            r_cache: previous.as_ref().map(|s| s.r_cache).unwrap_or(0.0),
-            last_practiced: TimestampSecs::now().0,
-        };
-        // Saved (and applied) before the review insert so that undo replays in
-        // the correct reverse order: remove review, then restore state.
-        self.update_concept_state_undoable(new_state, previous)?;
 
+        // Append the review to the log first; `theta` is then *derived* by
+        // replaying that log, so the live score equals what a sync replay would
+        // produce (single source of truth, no incremental drift).
         let review = TransferReview {
             id: self.storage.next_transfer_review_id()?,
+            guid: crate::notes::base91_u64(),
             item_id,
             concept_id,
             correct,
@@ -195,6 +222,20 @@ impl Collection {
             ts: TimestampMillis::now().0,
         };
         self.add_transfer_review_undoable(review)?;
+
+        let (theta, n_obs, last_practiced) = self
+            .replayed_concept_state(concept_id)?
+            .unwrap_or((0.0, 0, TimestampSecs::now().0));
+        let new_state = ConceptState {
+            concept_id,
+            theta,
+            n_obs,
+            r_cache: previous.as_ref().map(|s| s.r_cache).unwrap_or(0.0),
+            last_practiced,
+        };
+        // Saved as a reversible change carrying the prior snapshot, so undo
+        // restores the exact previous state (and the review removal above).
+        self.update_concept_state_undoable(new_state, previous)?;
         Ok(())
     }
 

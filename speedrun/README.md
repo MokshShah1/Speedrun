@@ -17,8 +17,10 @@ App-specific assets that ship with the fork, kept separate from upstream Anki co
 - `data/seed_items.json` — hand-authored transfer items (no AI) spanning ladder levels L0-L5, used for the Wednesday review loop. Same schema the Friday AI generator targets.
 - `import_content.py` — loads the concept map + seed items into a collection through the engine RPCs (`upsert_concept` / `upsert_item`). Run after a build: `python speedrun/import_content.py [collection.anki2]`. With no path it creates a throwaway collection and prints a verification summary (concept count, coverage, gap queue).
 - `ai/` — the Phase 6 AI transfer-item generation pipeline (provider + checker + leakage scanner + cache + gold-set eval). Fully offline-testable; see `AI.md`.
+- `verify_sync.py` — headless two-device sync check against the built backend (`python speedrun/verify_sync.py` after `tools/ninja pylib`). Mirrors `pylib/tests/test_speedrun_sync.py`.
 - `ENGINE.md` — the Phase 2 engine: what it does, why it lives in Rust, files touched, and the test/undo proof.
 - `AI.md` — the Phase 6 AI pipeline: how items are generated from a named source, the quality bar, the leakage scanner, the 50-item gold set, and how to run it live with an API key.
+- `SYNC.md` — the Phase 7 sync model: standard data via Anki's self-hosted server, and the append-only transfer-review log merge (union by guid + deterministic replay).
 
 ## Engine change (Rust, `rslib`) — implemented
 
@@ -27,6 +29,7 @@ A protobuf `SpeedrunService` (see `proto/anki/speedrun.proto`) exposing:
 - `RecordTransferReview` — grade a transfer item; updates concept ability via an online Elo/1-PL-IRT step. Transactional and undoable.
 - `MasteryQuery(concept_ids) -> {R, T, G, theta, n_transfer_obs, coverage}` for the dashboard.
 - `TransferGapQueue(limit) -> [concept_id]` ordered by `exam_weight x G`.
+- `ExportTransferLog` / `ImportTransferLog` — append-only transfer-review log sync (union by `guid`, deterministic replay). See `SYNC.md`.
 
 Collection tables: `concept`, `speedrun_item`, `transfer_review`, `concept_state` (theta stored in the collection DB; each carries `usn` for later sync). Created idempotently to avoid touching Anki's schema-version invariants — see `ENGINE.md`.
 

@@ -25,6 +25,10 @@ CREATE TABLE IF NOT EXISTS speedrun_item (
 
 CREATE TABLE IF NOT EXISTS transfer_review (
   id integer NOT NULL PRIMARY KEY,
+  -- Globally-unique identity used for sync. Local `id` is device-local; two
+  -- devices may both mint id=1, but their guids differ, so the merge dedupes
+  -- on guid and replays the union to converge.
+  guid text NOT NULL DEFAULT '',
   item_id integer NOT NULL,
   concept_id integer NOT NULL,
   correct integer NOT NULL,
@@ -34,6 +38,7 @@ CREATE TABLE IF NOT EXISTS transfer_review (
 );
 
 CREATE INDEX IF NOT EXISTS idx_transfer_review_concept ON transfer_review (concept_id);
+CREATE INDEX IF NOT EXISTS idx_transfer_review_guid ON transfer_review (guid);
 
 CREATE TABLE IF NOT EXISTS concept_state (
   concept_id integer NOT NULL PRIMARY KEY,

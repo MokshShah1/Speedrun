@@ -28,6 +28,28 @@ impl SqliteStorage {
     /// entry point.
     pub(crate) fn ensure_speedrun_tables(&self) -> Result<()> {
         self.db.execute_batch(CREATE_TABLES)?;
+        // Defensive migration: a collection created by an earlier build of the
+        // engine has `transfer_review` without the sync `guid` column. Add it if
+        // missing (SQLite errors with "duplicate column" once it exists, which
+        // we ignore), then backfill any blank guids so the sync merge has a
+        // unique key for every historical row.
+        if self
+            .db
+            .execute("ALTER TABLE transfer_review ADD COLUMN guid text NOT NULL DEFAULT ''", [])
+            .is_ok()
+        {
+            let blanks: Vec<i64> = self
+                .db
+                .prepare("SELECT id FROM transfer_review WHERE guid = ''")?
+                .query_and_then([], |r| Ok(r.get::<_, i64>(0)?))?
+                .collect::<Result<_>>()?;
+            for id in blanks {
+                self.db.execute(
+                    "UPDATE transfer_review SET guid = ? WHERE id = ?",
+                    params![crate::notes::base91_u64(), id],
+                )?;
+            }
+        }
         Ok(())
     }
 
@@ -47,6 +69,7 @@ impl SqliteStorage {
         Ok(())
     }
 
+    #[allow(dead_code)] // kept as a storage accessor for future callers
     pub(crate) fn get_concept(&self, id: i64) -> Result<Option<Concept>> {
         self.db
             .prepare_cached(
@@ -90,6 +113,7 @@ impl SqliteStorage {
         Ok(())
     }
 
+    #[allow(dead_code)] // kept as a storage accessor for future callers
     pub(crate) fn get_item(&self, id: i64) -> Result<Option<Item>> {
         self.db
             .prepare_cached(
@@ -127,11 +151,12 @@ impl SqliteStorage {
         self.db
             .prepare_cached(
                 "INSERT OR REPLACE INTO transfer_review
-                   (id, item_id, concept_id, correct, latency_ms, ts, usn)
-                 VALUES (?, ?, ?, ?, ?, ?, 0)",
+                   (id, guid, item_id, concept_id, correct, latency_ms, ts, usn)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, 0)",
             )?
             .execute(params![
                 r.id,
+                r.guid,
                 r.item_id,
                 r.concept_id,
                 r.correct as i64,
@@ -146,6 +171,49 @@ impl SqliteStorage {
             .prepare_cached("DELETE FROM transfer_review WHERE id = ?")?
             .execute([id])?;
         Ok(())
+    }
+
+    /// The full review log, ordered canonically by `(ts, guid)` so that any two
+    /// devices holding the same set of reviews replay them in the same order.
+    pub(crate) fn all_transfer_reviews(&self) -> Result<Vec<TransferReview>> {
+        self.db
+            .prepare_cached(
+                "SELECT id, guid, item_id, concept_id, correct, latency_ms, ts
+                 FROM transfer_review ORDER BY ts, guid",
+            )?
+            .query_and_then([], row_to_transfer_review)?
+            .collect()
+    }
+
+    /// Reviews for one concept in canonical replay order.
+    pub(crate) fn transfer_reviews_for_concept(
+        &self,
+        concept_id: i64,
+    ) -> Result<Vec<TransferReview>> {
+        self.db
+            .prepare_cached(
+                "SELECT id, guid, item_id, concept_id, correct, latency_ms, ts
+                 FROM transfer_review WHERE concept_id = ? ORDER BY ts, guid",
+            )?
+            .query_and_then([concept_id], row_to_transfer_review)?
+            .collect()
+    }
+
+    /// Set of guids already present, used to dedupe an incoming sync log.
+    pub(crate) fn transfer_review_guids(&self) -> Result<std::collections::HashSet<String>> {
+        self.db
+            .prepare_cached("SELECT guid FROM transfer_review")?
+            .query_and_then([], |r| Ok(r.get::<_, String>(0)?))?
+            .collect()
+    }
+
+    /// Map of item id -> difficulty, for replaying the log without an N+1
+    /// lookup per review.
+    pub(crate) fn item_difficulties(&self) -> Result<std::collections::HashMap<i64, f64>> {
+        self.db
+            .prepare_cached("SELECT id, difficulty FROM speedrun_item")?
+            .query_and_then([], |r| Ok((r.get::<_, i64>(0)?, r.get::<_, f64>(1)?)))?
+            .collect()
     }
 
     pub(crate) fn transfer_obs_count(&self, concept_id: i64) -> Result<u32> {
@@ -214,6 +282,18 @@ fn row_to_item(row: &rusqlite::Row) -> Result<Item> {
         choices: serde_json::from_str(&choices_json).unwrap_or_default(),
         answer: row.get(8)?,
         explanation: row.get(9)?,
+    })
+}
+
+fn row_to_transfer_review(row: &rusqlite::Row) -> Result<TransferReview> {
+    Ok(TransferReview {
+        id: row.get(0)?,
+        guid: row.get(1)?,
+        item_id: row.get(2)?,
+        concept_id: row.get(3)?,
+        correct: row.get::<_, i64>(4)? != 0,
+        latency_ms: row.get(5)?,
+        ts: row.get(6)?,
     })
 }
 

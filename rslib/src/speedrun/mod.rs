@@ -12,6 +12,7 @@
 
 pub(crate) mod recall;
 pub mod service;
+pub(crate) mod sync;
 pub(crate) mod undo;
 
 /// Representative MCAT item difficulty (around ladder levels L3-L4) at which a
@@ -71,10 +72,15 @@ pub struct Item {
     pub explanation: String,
 }
 
-/// One graded answer to a transfer item.
+/// One graded answer to a transfer item. The append-only unit of sync: the
+/// concept's learned `theta` is *derived* by replaying these in canonical order,
+/// so syncing the log (union by `guid`) is conflict-free and idempotent.
 #[derive(Debug, Clone, PartialEq)]
 pub struct TransferReview {
+    /// Device-local row id (not stable across devices).
     pub id: i64,
+    /// Globally-unique identity for sync/merge.
+    pub guid: String,
     pub item_id: i64,
     pub concept_id: i64,
     pub correct: bool,
