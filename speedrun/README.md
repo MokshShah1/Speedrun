@@ -21,6 +21,8 @@ App-specific assets that ship with the fork, kept separate from upstream Anki co
 - `ENGINE.md` — the Phase 2 engine: what it does, why it lives in Rust, files touched, and the test/undo proof.
 - `AI.md` — the Phase 6 AI pipeline: how items are generated from a named source, the quality bar, the leakage scanner, the 50-item gold set, and how to run it live with an API key.
 - `SYNC.md` — the Phase 7 sync model: standard data via Anki's self-hosted server, and the append-only transfer-review log merge (union by guid + deterministic replay).
+- `eval/` — Phase 8 evaluation harnesses: calibration (Brier/log-loss/ECE vs baselines), the interleaving ablation experiment (honest null + forgetting effect), and the 20x soak/restart test. See `EVAL.md`.
+- `EVAL.md` — calibration results, the interleaving experiment, the soak test, and the documented v0 readiness mapping.
 
 ## Engine change (Rust, `rslib`) — implemented
 
