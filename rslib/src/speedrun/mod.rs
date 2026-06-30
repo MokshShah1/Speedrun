@@ -10,6 +10,7 @@
 //! (Elo / 1-PL IRT) ability `theta`, updated online from graded transfer items,
 //! and expose the gap G = R - T, which drives the study queue and dashboard.
 
+pub(crate) mod recall;
 pub mod service;
 pub(crate) mod undo;
 

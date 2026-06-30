@@ -1,6 +1,8 @@
 // Copyright: Ankitects Pty Ltd and contributors
 // License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
+use std::collections::HashMap;
+
 use anki_proto::speedrun as pb;
 
 use crate::ops::Op;
@@ -119,6 +121,8 @@ impl Collection {
 
     fn mastery_query_inner(&mut self, concept_ids: Vec<i64>) -> Result<pb::MasteryQueryResponse> {
         let all = self.storage.all_concepts()?;
+        let outline_by_id: HashMap<i64, String> =
+            all.iter().map(|c| (c.id, c.outline_id.clone())).collect();
         let target_ids: Vec<i64> = if concept_ids.is_empty() {
             all.iter().map(|c| c.id).collect()
         } else {
@@ -129,8 +133,15 @@ impl Collection {
         for id in target_ids {
             let state = self.storage.get_concept_state(id)?;
             let theta = state.as_ref().map(|s| s.theta).unwrap_or(0.0);
-            let recall = state.as_ref().map(|s| s.r_cache).unwrap_or(0.0);
             let n_obs = state.as_ref().map(|s| s.n_obs).unwrap_or(0) as u32;
+            // Live recall from FSRS-tagged cards, falling back to the cached
+            // value (then 0) when the concept has no tagged cards yet.
+            let recall = match outline_by_id.get(&id) {
+                Some(code) => self.concept_recall(code)?,
+                None => None,
+            }
+            .or_else(|| state.as_ref().map(|s| s.r_cache))
+            .unwrap_or(0.0);
             let transfer = concept_transfer(theta);
             entries.push(pb::ConceptMastery {
                 concept_id: id,
@@ -165,7 +176,10 @@ impl Collection {
         for c in &concepts {
             let state = self.storage.get_concept_state(c.id)?;
             let theta = state.as_ref().map(|s| s.theta).unwrap_or(0.0);
-            let recall = state.as_ref().map(|s| s.r_cache).unwrap_or(0.0);
+            let recall = self
+                .concept_recall(&c.outline_id)?
+                .or_else(|| state.as_ref().map(|s| s.r_cache))
+                .unwrap_or(0.0);
             let g = gap(recall, concept_transfer(theta));
             scored.push((c.exam_weight * g, c.id));
         }
@@ -267,6 +281,43 @@ mod test {
         assert_eq!(undone.entries[0].n_transfer_obs, 0);
         assert!((undone.entries[0].theta - 0.0).abs() < 1e-9);
         assert!((undone.coverage - 0.0).abs() < 1e-9);
+        Ok(())
+    }
+
+    #[test]
+    fn recall_from_tagged_cards_feeds_gap() -> Result<()> {
+        use fsrs::FSRS5_DEFAULT_DECAY;
+
+        use crate::card::FsrsMemoryState;
+
+        let mut col = open_col();
+        add_concept(&mut col, 1, 0.5); // outline_id "C1"
+
+        // A well-remembered card tagged to the concept (high stability, just
+        // reviewed -> retrievability ~1).
+        let nt = col.get_notetype_by_name("Basic")?.unwrap();
+        let mut note = nt.new_note();
+        note.tags = vec!["speedrun::C1".to_string()];
+        let _ = col.add_note(&mut note, DeckId(1))?;
+        let mut card = col.storage.all_cards_of_note(note.id)?.pop().unwrap();
+        card.memory_state = Some(FsrsMemoryState {
+            stability: 200.0,
+            difficulty: 5.0,
+        });
+        card.decay = Some(FSRS5_DEFAULT_DECAY);
+        card.last_review_time = Some(TimestampSecs::now());
+        col.storage.update_card(&card)?;
+
+        let m = SpeedrunService::mastery_query(
+            &mut col,
+            pb::MasteryQueryRequest {
+                concept_ids: vec![1],
+            },
+        )?;
+        // High recall, prior transfer (theta 0) -> a large positive gap.
+        assert!(m.entries[0].recall > 0.9, "recall = {}", m.entries[0].recall);
+        assert!((m.entries[0].gap - (m.entries[0].recall - m.entries[0].transfer)).abs() < 1e-9);
+        assert!(m.entries[0].gap > 0.4, "gap = {}", m.entries[0].gap);
         Ok(())
     }
 
