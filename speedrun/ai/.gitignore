@@ -1,0 +1,2 @@
+# Generation cache is machine-local and reproducible; do not commit.
+cache/

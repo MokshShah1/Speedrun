@@ -1,0 +1,178 @@
+[
+  {
+    "level": 1,
+    "b": -0.9,
+    "ai_generated": true,
+    "stem": "At the paraphrase level, which statement about buffers and the Henderson-Hasselbalch equation best explains conjugate?",
+    "choices": [
+      "The conjugate effect contradicts buffers and the Henderson-Hasselbalch equation.",
+      "buffers and the Henderson-Hasselbalch equation has no relationship to conjugate.",
+      "The conjugate behaviour follows directly from buffers and the Henderson-Hasselbalch equation.",
+      "Conjugate is irrelevant outside buffers and the Henderson-Hasselbalch equation."
+    ],
+    "answer": 2,
+    "explanation": "buffers and the Henderson-Hasselbalch equation predicts the conjugate behaviour; the other options misstate or deny that relationship.",
+    "concept_id": 30,
+    "source_ref": "MileDown GenChem: Buffers"
+  },
+  {
+    "level": 1,
+    "b": -0.9,
+    "ai_generated": true,
+    "stem": "Consider a paraphrase scenario involving adding. How does buffers and the Henderson-Hasselbalch equation most directly govern the result?",
+    "choices": [
+      "The adding effect contradicts buffers and the Henderson-Hasselbalch equation.",
+      "buffers and the Henderson-Hasselbalch equation has no relationship to adding.",
+      "The adding behaviour follows directly from buffers and the Henderson-Hasselbalch equation.",
+      "Adding is irrelevant outside buffers and the Henderson-Hasselbalch equation."
+    ],
+    "answer": 2,
+    "explanation": "buffers and the Henderson-Hasselbalch equation predicts the adding behaviour; the other options misstate or deny that relationship.",
+    "concept_id": 30,
+    "source_ref": "MileDown GenChem: Buffers"
+  },
+  {
+    "level": 1,
+    "b": -0.9,
+    "ai_generated": true,
+    "stem": "Working at the paraphrase level, a student applies buffers and the Henderson-Hasselbalch equation to acid. Which reasoning is correct?",
+    "choices": [
+      "The acid effect contradicts buffers and the Henderson-Hasselbalch equation.",
+      "buffers and the Henderson-Hasselbalch equation has no relationship to acid.",
+      "The acid behaviour follows directly from buffers and the Henderson-Hasselbalch equation.",
+      "Acid is irrelevant outside buffers and the Henderson-Hasselbalch equation."
+    ],
+    "answer": 2,
+    "explanation": "buffers and the Henderson-Hasselbalch equation predicts the acid behaviour; the other options misstate or deny that relationship.",
+    "concept_id": 30,
+    "source_ref": "MileDown GenChem: Buffers"
+  },
+  {
+    "level": 1,
+    "b": -0.9,
+    "ai_generated": true,
+    "stem": "Which paraphrase-level prediction about added follows directly from buffers and the Henderson-Hasselbalch equation?",
+    "choices": [
+      "Added is irrelevant outside buffers and the Henderson-Hasselbalch equation.",
+      "buffers and the Henderson-Hasselbalch equation has no relationship to added.",
+      "The added effect contradicts buffers and the Henderson-Hasselbalch equation.",
+      "The added behaviour follows directly from buffers and the Henderson-Hasselbalch equation."
+    ],
+    "answer": 3,
+    "explanation": "buffers and the Henderson-Hasselbalch equation predicts the added behaviour; the other options misstate or deny that relationship.",
+    "concept_id": 30,
+    "source_ref": "MileDown GenChem: Buffers"
+  },
+  {
+    "level": 2,
+    "b": -0.2,
+    "ai_generated": true,
+    "stem": "At the single-concept application level, which statement about buffers and the Henderson-Hasselbalch equation best explains ratio?",
+    "choices": [
+      "buffers and the Henderson-Hasselbalch equation has no relationship to ratio.",
+      "The ratio behaviour follows directly from buffers and the Henderson-Hasselbalch equation.",
+      "The ratio effect contradicts buffers and the Henderson-Hasselbalch equation.",
+      "Ratio is irrelevant outside buffers and the Henderson-Hasselbalch equation."
+    ],
+    "answer": 1,
+    "explanation": "buffers and the Henderson-Hasselbalch equation predicts the ratio behaviour; the other options misstate or deny that relationship.",
+    "concept_id": 30,
+    "source_ref": "MileDown GenChem: Buffers"
+  },
+  {
+    "level": 2,
+    "b": -0.2,
+    "ai_generated": true,
+    "stem": "Consider a single-concept application scenario involving conjugate. How does buffers and the Henderson-Hasselbalch equation most directly govern the result?",
+    "choices": [
+      "buffers and the Henderson-Hasselbalch equation has no relationship to conjugate.",
+      "The conjugate behaviour follows directly from buffers and the Henderson-Hasselbalch equation.",
+      "The conjugate effect contradicts buffers and the Henderson-Hasselbalch equation.",
+      "Conjugate is irrelevant outside buffers and the Henderson-Hasselbalch equation."
+    ],
+    "answer": 1,
+    "explanation": "buffers and the Henderson-Hasselbalch equation predicts the conjugate behaviour; the other options misstate or deny that relationship.",
+    "concept_id": 30,
+    "source_ref": "MileDown GenChem: Buffers"
+  },
+  {
+    "level": 2,
+    "b": -0.2,
+    "ai_generated": true,
+    "stem": "Working at the single-concept application level, a student applies buffers and the Henderson-Hasselbalch equation to buffer. Which reasoning is correct?",
+    "choices": [
+      "The buffer effect contradicts buffers and the Henderson-Hasselbalch equation.",
+      "buffers and the Henderson-Hasselbalch equation has no relationship to buffer.",
+      "The buffer behaviour follows directly from buffers and the Henderson-Hasselbalch equation.",
+      "Buffer is irrelevant outside buffers and the Henderson-Hasselbalch equation."
+    ],
+    "answer": 2,
+    "explanation": "buffers and the Henderson-Hasselbalch equation predicts the buffer behaviour; the other options misstate or deny that relationship.",
+    "concept_id": 30,
+    "source_ref": "MileDown GenChem: Buffers"
+  },
+  {
+    "level": 2,
+    "b": -0.2,
+    "ai_generated": true,
+    "stem": "Which single-concept application-level prediction about ratio follows directly from buffers and the Henderson-Hasselbalch equation?",
+    "choices": [
+      "The ratio effect contradicts buffers and the Henderson-Hasselbalch equation.",
+      "buffers and the Henderson-Hasselbalch equation has no relationship to ratio.",
+      "The ratio behaviour follows directly from buffers and the Henderson-Hasselbalch equation.",
+      "Ratio is irrelevant outside buffers and the Henderson-Hasselbalch equation."
+    ],
+    "answer": 2,
+    "explanation": "buffers and the Henderson-Hasselbalch equation predicts the ratio behaviour; the other options misstate or deny that relationship.",
+    "concept_id": 30,
+    "source_ref": "MileDown GenChem: Buffers"
+  },
+  {
+    "level": 3,
+    "b": 0.5,
+    "ai_generated": true,
+    "stem": "Consider a novel application scenario involving acid. How does buffers and the Henderson-Hasselbalch equation most directly govern the result?",
+    "choices": [
+      "Acid is irrelevant outside buffers and the Henderson-Hasselbalch equation.",
+      "buffers and the Henderson-Hasselbalch equation has no relationship to acid.",
+      "The acid effect contradicts buffers and the Henderson-Hasselbalch equation.",
+      "The acid behaviour follows directly from buffers and the Henderson-Hasselbalch equation."
+    ],
+    "answer": 3,
+    "explanation": "buffers and the Henderson-Hasselbalch equation predicts the acid behaviour; the other options misstate or deny that relationship.",
+    "concept_id": 30,
+    "source_ref": "MileDown GenChem: Buffers"
+  },
+  {
+    "level": 3,
+    "b": 0.5,
+    "ai_generated": true,
+    "stem": "Working at the novel application level, a student applies buffers and the Henderson-Hasselbalch equation to adding. Which reasoning is correct?",
+    "choices": [
+      "buffers and the Henderson-Hasselbalch equation has no relationship to adding.",
+      "The adding behaviour follows directly from buffers and the Henderson-Hasselbalch equation.",
+      "The adding effect contradicts buffers and the Henderson-Hasselbalch equation.",
+      "Adding is irrelevant outside buffers and the Henderson-Hasselbalch equation."
+    ],
+    "answer": 1,
+    "explanation": "buffers and the Henderson-Hasselbalch equation predicts the adding behaviour; the other options misstate or deny that relationship.",
+    "concept_id": 30,
+    "source_ref": "MileDown GenChem: Buffers"
+  },
+  {
+    "level": 3,
+    "b": 0.5,
+    "ai_generated": true,
+    "stem": "Which novel application-level prediction about conjugate follows directly from buffers and the Henderson-Hasselbalch equation?",
+    "choices": [
+      "Conjugate is irrelevant outside buffers and the Henderson-Hasselbalch equation.",
+      "buffers and the Henderson-Hasselbalch equation has no relationship to conjugate.",
+      "The conjugate effect contradicts buffers and the Henderson-Hasselbalch equation.",
+      "The conjugate behaviour follows directly from buffers and the Henderson-Hasselbalch equation."
+    ],
+    "answer": 3,
+    "explanation": "buffers and the Henderson-Hasselbalch equation predicts the conjugate behaviour; the other options misstate or deny that relationship.",
+    "concept_id": 30,
+    "source_ref": "MileDown GenChem: Buffers"
+  }
+]

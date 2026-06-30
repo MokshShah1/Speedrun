@@ -1,0 +1,19 @@
+Source: MileDown General Chemistry review, "Acids, Bases, and Buffers" (named source for AI item generation).
+
+A buffer is a solution that resists changes in pH when small amounts of acid or
+base are added. It is made from a weak acid and its conjugate base (or a weak
+base and its conjugate acid). The Henderson-Hasselbalch equation,
+pH = pKa + log([A-]/[HA]), relates the pH of the solution to the pKa of the weak
+acid and the ratio of conjugate base to conjugate acid.
+
+Buffering capacity is greatest when the pH is close to the pKa, because the
+concentrations of the weak acid and its conjugate base are then comparable and
+each can neutralize added base or acid. As a rule of thumb a buffer works well
+within about one pH unit of its pKa. When the pH equals the pKa, the ratio of
+conjugate base to acid is one and the log term is zero.
+
+Diluting a buffer with water changes the absolute concentrations of acid and
+base but not their ratio, so the pH stays nearly constant. Adding strong base
+converts weak acid into conjugate base, raising the ratio and the pH only
+slightly, while adding strong acid does the reverse. Choosing a buffer for an
+experiment therefore means picking a weak acid whose pKa is near the target pH.

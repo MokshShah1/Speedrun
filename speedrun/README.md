@@ -16,7 +16,9 @@ App-specific assets that ship with the fork, kept separate from upstream Anki co
 - `data/concepts.json` — the AAMC content-outline concept map (the coverage backbone). 31 in-scope content categories across Bio/Biochem, Chem/Phys, Psych/Soc (CARS excluded). `exam_weight` is a tunable uniform-within-section prior to be refined against AAMC's published distributions.
 - `data/seed_items.json` — hand-authored transfer items (no AI) spanning ladder levels L0-L5, used for the Wednesday review loop. Same schema the Friday AI generator targets.
 - `import_content.py` — loads the concept map + seed items into a collection through the engine RPCs (`upsert_concept` / `upsert_item`). Run after a build: `python speedrun/import_content.py [collection.anki2]`. With no path it creates a throwaway collection and prints a verification summary (concept count, coverage, gap queue).
+- `ai/` — the Phase 6 AI transfer-item generation pipeline (provider + checker + leakage scanner + cache + gold-set eval). Fully offline-testable; see `AI.md`.
 - `ENGINE.md` — the Phase 2 engine: what it does, why it lives in Rust, files touched, and the test/undo proof.
+- `AI.md` — the Phase 6 AI pipeline: how items are generated from a named source, the quality bar, the leakage scanner, the 50-item gold set, and how to run it live with an API key.
 
 ## Engine change (Rust, `rslib`) — implemented
 

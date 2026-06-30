@@ -1,0 +1,602 @@
+[
+  {
+    "label": "good",
+    "failure": "none",
+    "concept_title": "buffers and the Henderson-Hasselbalch equation",
+    "source_text": "A buffer resists pH change near its pKa; the Henderson-Hasselbalch equation relates pH, pKa, and the ratio of conjugate base to acid.",
+    "item": {
+      "stem": "A weak-acid buffer is most effective at resisting pH change under which condition?",
+      "choices": ["When the working pH sits close to the pKa of the weak acid", "When the working pH is far above the pKa", "When no conjugate base remains in solution", "When the acid is fully dissociated"],
+      "answer": 0,
+      "explanation": "Buffering capacity peaks where conjugate acid and base are comparable, which occurs near the pKa."
+    }
+  },
+  {
+    "label": "good",
+    "failure": "none",
+    "concept_title": "buffers and the Henderson-Hasselbalch equation",
+    "source_text": "A buffer resists pH change near its pKa; the Henderson-Hasselbalch equation relates pH, pKa, and the ratio of conjugate base to acid.",
+    "item": {
+      "stem": "Adding strong base to a buffer at its pKa shifts the conjugate ratio in which direction?",
+      "choices": ["Toward more conjugate base", "Toward more conjugate acid", "It removes all buffering capacity instantly", "It has no effect on the ratio"],
+      "answer": 0,
+      "explanation": "Strong base deprotonates the acid, raising the base-to-acid ratio while pH rises only slightly."
+    }
+  },
+  {
+    "label": "good",
+    "failure": "none",
+    "concept_title": "buffers and the Henderson-Hasselbalch equation",
+    "source_text": "A buffer resists pH change near its pKa; the Henderson-Hasselbalch equation relates pH, pKa, and the ratio of conjugate base to acid.",
+    "item": {
+      "stem": "If a buffer's measured pH equals its pKa, what does the equation imply about the components?",
+      "choices": ["Equal concentrations of conjugate acid and base", "Ten-fold excess of acid", "Ten-fold excess of base", "No acid is present"],
+      "answer": 0,
+      "explanation": "When the ratio is one, the log term is zero, so pH equals pKa."
+    }
+  },
+  {
+    "label": "good",
+    "failure": "none",
+    "concept_title": "glycolysis net ATP yield",
+    "source_text": "Glycolysis converts glucose to two pyruvate, with a net gain of two ATP and two NADH per glucose in the cytoplasm.",
+    "item": {
+      "stem": "A cell metabolizes one glucose through glycolysis only; what is the net ATP gain?",
+      "choices": ["Two ATP", "Four ATP", "Thirty-two ATP", "Zero ATP"],
+      "answer": 0,
+      "explanation": "Four ATP are produced and two consumed, leaving a net of two per glucose."
+    }
+  },
+  {
+    "label": "good",
+    "failure": "none",
+    "concept_title": "glycolysis net ATP yield",
+    "source_text": "Glycolysis converts glucose to two pyruvate, with a net gain of two ATP and two NADH per glucose in the cytoplasm.",
+    "item": {
+      "stem": "Where in the cell does the glycolysis pathway that yields pyruvate take place?",
+      "choices": ["The cytoplasm", "The mitochondrial matrix", "The nucleus", "The endoplasmic reticulum"],
+      "answer": 0,
+      "explanation": "Glycolysis is a cytoplasmic pathway and needs no membrane-bound organelle."
+    }
+  },
+  {
+    "label": "good",
+    "failure": "none",
+    "concept_title": "glycolysis net ATP yield",
+    "source_text": "Glycolysis converts glucose to two pyruvate, with a net gain of two ATP and two NADH per glucose in the cytoplasm.",
+    "item": {
+      "stem": "How many reduced electron carriers does glycolysis generate per glucose molecule?",
+      "choices": ["Two NADH", "One FADH2", "Six NADH", "No carriers at all"],
+      "answer": 0,
+      "explanation": "Each of the two glyceraldehyde-3-phosphate oxidations yields one NADH."
+    }
+  },
+  {
+    "label": "good",
+    "failure": "none",
+    "concept_title": "enzyme kinetics and Michaelis-Menten",
+    "source_text": "Km is the substrate concentration at half Vmax; a competitive inhibitor raises apparent Km while Vmax stays the same.",
+    "item": {
+      "stem": "A competitive inhibitor is added to an enzyme assay; how do the kinetic parameters change?",
+      "choices": ["Apparent Km rises while Vmax is unchanged", "Vmax falls while Km is unchanged", "Both Km and Vmax fall", "Neither parameter changes"],
+      "answer": 0,
+      "explanation": "Competition can be overcome by substrate, so Vmax holds but more substrate is needed to reach half-max."
+    }
+  },
+  {
+    "label": "good",
+    "failure": "none",
+    "concept_title": "enzyme kinetics and Michaelis-Menten",
+    "source_text": "Km is the substrate concentration at half Vmax; a competitive inhibitor raises apparent Km while Vmax stays the same.",
+    "item": {
+      "stem": "What does a low Km value indicate about an enzyme's relationship to its substrate?",
+      "choices": ["High apparent affinity for the substrate", "Low catalytic turnover", "A requirement for an inhibitor", "That Vmax must also be low"],
+      "answer": 0,
+      "explanation": "A small Km means half-maximal velocity is reached at low substrate, implying tight binding."
+    }
+  },
+  {
+    "label": "good",
+    "failure": "none",
+    "concept_title": "enzyme kinetics and Michaelis-Menten",
+    "source_text": "Km is the substrate concentration at half Vmax; a competitive inhibitor raises apparent Km while Vmax stays the same.",
+    "item": {
+      "stem": "At a substrate level equal to Km, what reaction velocity does the model predict?",
+      "choices": ["Half of Vmax", "The full Vmax", "Zero velocity", "Twice Vmax"],
+      "answer": 0,
+      "explanation": "Km is defined as the substrate concentration giving half-maximal velocity."
+    }
+  },
+  {
+    "label": "good",
+    "failure": "none",
+    "concept_title": "the Doppler effect",
+    "source_text": "When a wave source approaches an observer the observed frequency increases; when it recedes the observed frequency decreases.",
+    "item": {
+      "stem": "An ambulance siren approaches a stationary listener; how does the perceived frequency behave?",
+      "choices": ["It is higher than the emitted frequency", "It is lower than the emitted frequency", "It matches the emitted frequency exactly", "It drops to zero"],
+      "answer": 0,
+      "explanation": "Approaching motion compresses the wavefronts, raising the observed frequency."
+    }
+  },
+  {
+    "label": "good",
+    "failure": "none",
+    "concept_title": "the Doppler effect",
+    "source_text": "When a wave source approaches an observer the observed frequency increases; when it recedes the observed frequency decreases.",
+    "item": {
+      "stem": "A star's light is red-shifted toward longer wavelengths; what does the Doppler relationship imply?",
+      "choices": ["The star is receding from the observer", "The star is approaching the observer", "The star is stationary", "The light has stopped propagating"],
+      "answer": 0,
+      "explanation": "Recession lowers observed frequency, lengthening wavelength toward the red."
+    }
+  },
+  {
+    "label": "good",
+    "failure": "none",
+    "concept_title": "the Doppler effect",
+    "source_text": "When a wave source approaches an observer the observed frequency increases; when it recedes the observed frequency decreases.",
+    "item": {
+      "stem": "A source and observer move apart at constant speed; how does the detected pitch compare to the source pitch?",
+      "choices": ["Lower than the source pitch", "Higher than the source pitch", "Identical to the source pitch", "Alternating high and low"],
+      "answer": 0,
+      "explanation": "Recession stretches the wavefronts, lowering observed frequency and pitch."
+    }
+  },
+  {
+    "label": "good",
+    "failure": "none",
+    "concept_title": "amino acid charge and isoelectric point",
+    "source_text": "Below its isoelectric point an amino acid carries a net positive charge; at the pI the net charge is zero.",
+    "item": {
+      "stem": "A glycine solution is held at a pH well below glycine's isoelectric point; what is its net charge?",
+      "choices": ["Net positive", "Net negative", "Exactly zero", "Undefined"],
+      "answer": 0,
+      "explanation": "Below the pI, protonation dominates, giving a net positive charge."
+    }
+  },
+  {
+    "label": "good",
+    "failure": "none",
+    "concept_title": "amino acid charge and isoelectric point",
+    "source_text": "Below its isoelectric point an amino acid carries a net positive charge; at the pI the net charge is zero.",
+    "item": {
+      "stem": "During electrophoresis at a pH equal to its pI, how does an amino acid migrate?",
+      "choices": ["It does not migrate toward either electrode", "It moves toward the cathode", "It moves toward the anode", "It precipitates immediately"],
+      "answer": 0,
+      "explanation": "At the pI net charge is zero, so there is no net force in the field."
+    }
+  },
+  {
+    "label": "good",
+    "failure": "none",
+    "concept_title": "amino acid charge and isoelectric point",
+    "source_text": "Below its isoelectric point an amino acid carries a net positive charge; at the pI the net charge is zero.",
+    "item": {
+      "stem": "Raising the pH of a solution above an amino acid's pI changes its net charge how?",
+      "choices": ["It becomes net negative", "It becomes net positive", "It stays exactly zero", "It doubles in magnitude but stays positive"],
+      "answer": 0,
+      "explanation": "Above the pI, deprotonation dominates and the molecule carries net negative charge."
+    }
+  },
+  {
+    "label": "good",
+    "failure": "none",
+    "concept_title": "buffers and the Henderson-Hasselbalch equation",
+    "source_text": "A buffer resists pH change near its pKa; the Henderson-Hasselbalch equation relates pH, pKa, and the ratio of conjugate base to acid.",
+    "item": {
+      "stem": "Choosing a buffer for an experiment at pH 7.2, which selection criterion follows from the equation?",
+      "choices": ["Pick a weak acid whose pKa is close to 7.2", "Pick a strong acid with no pKa", "Pick any salt regardless of pKa", "Pick a weak acid with pKa near 2"],
+      "answer": 0,
+      "explanation": "Buffering is strongest within about one unit of the pKa, so a pKa near 7.2 is ideal."
+    }
+  },
+  {
+    "label": "good",
+    "failure": "none",
+    "concept_title": "glycolysis net ATP yield",
+    "source_text": "Glycolysis converts glucose to two pyruvate, with a net gain of two ATP and two NADH per glucose in the cytoplasm.",
+    "item": {
+      "stem": "Under anaerobic conditions a muscle cell relies on glycolysis; what limits its sustained ATP output?",
+      "choices": ["The small net yield of two ATP per glucose", "An unlimited supply of oxygen", "The thirty-two ATP from this pathway", "The absence of any ATP production"],
+      "answer": 0,
+      "explanation": "Without oxidative phosphorylation, only the modest glycolytic net of two ATP is available."
+    }
+  },
+  {
+    "label": "good",
+    "failure": "none",
+    "concept_title": "enzyme kinetics and Michaelis-Menten",
+    "source_text": "Km is the substrate concentration at half Vmax; a competitive inhibitor raises apparent Km while Vmax stays the same.",
+    "item": {
+      "stem": "Two enzymes act on the same substrate; enzyme A has a much smaller Km than enzyme B. What follows?",
+      "choices": ["Enzyme A reaches half-max at a lower substrate level", "Enzyme A must have a lower Vmax", "Enzyme B binds substrate more tightly", "The enzymes behave identically"],
+      "answer": 0,
+      "explanation": "A smaller Km means half-maximal velocity occurs at lower substrate, reflecting tighter binding."
+    }
+  },
+  {
+    "label": "good",
+    "failure": "none",
+    "concept_title": "the Doppler effect",
+    "source_text": "When a wave source approaches an observer the observed frequency increases; when it recedes the observed frequency decreases.",
+    "item": {
+      "stem": "A radar gun bounces waves off a car moving toward it; what shift does the returning signal show?",
+      "choices": ["An increase in frequency", "A decrease in frequency", "No change at all", "A complete loss of the signal"],
+      "answer": 0,
+      "explanation": "Approach raises observed frequency on both the incoming and reflected paths."
+    }
+  },
+  {
+    "label": "good",
+    "failure": "none",
+    "concept_title": "amino acid charge and isoelectric point",
+    "source_text": "Below its isoelectric point an amino acid carries a net positive charge; at the pI the net charge is zero.",
+    "item": {
+      "stem": "To keep a protein at zero net charge for crystallization, where should the buffer pH sit relative to its pI?",
+      "choices": ["At the pI", "Two units below the pI", "Two units above the pI", "As far from the pI as possible"],
+      "answer": 0,
+      "explanation": "Net charge is zero only at the pI, minimizing electrostatic repulsion."
+    }
+  },
+  {
+    "label": "good",
+    "failure": "none",
+    "concept_title": "buffers and the Henderson-Hasselbalch equation",
+    "source_text": "A buffer resists pH change near its pKa; the Henderson-Hasselbalch equation relates pH, pKa, and the ratio of conjugate base to acid.",
+    "item": {
+      "stem": "Diluting a buffer tenfold with water has what predicted effect on its pH?",
+      "choices": ["Little change because the ratio is preserved", "A tenfold rise in pH", "A tenfold fall in pH", "Immediate loss of all buffering"],
+      "answer": 0,
+      "explanation": "Dilution scales acid and base together, so their ratio and the pH stay roughly constant."
+    }
+  },
+  {
+    "label": "good",
+    "failure": "none",
+    "concept_title": "glycolysis net ATP yield",
+    "source_text": "Glycolysis converts glucose to two pyruvate, with a net gain of two ATP and two NADH per glucose in the cytoplasm.",
+    "item": {
+      "stem": "A researcher blocks the final ATP-generating step of glycolysis; what is the most direct consequence?",
+      "choices": ["The net ATP yield falls below two", "Oxygen consumption rises sharply", "Pyruvate output is unaffected", "NADH is converted to glucose"],
+      "answer": 0,
+      "explanation": "Blocking payoff-phase ATP synthesis lowers the already small net yield."
+    }
+  },
+  {
+    "label": "good",
+    "failure": "none",
+    "concept_title": "enzyme kinetics and Michaelis-Menten",
+    "source_text": "Km is the substrate concentration at half Vmax; a competitive inhibitor raises apparent Km while Vmax stays the same.",
+    "item": {
+      "stem": "Adding excess substrate restores full velocity in an inhibited assay; which inhibitor type is implicated?",
+      "choices": ["A competitive inhibitor", "A noncompetitive inhibitor", "An irreversible inhibitor", "An uncompetitive inhibitor"],
+      "answer": 0,
+      "explanation": "Only competitive inhibition can be overcome by raising substrate, since Vmax is preserved."
+    }
+  },
+  {
+    "label": "good",
+    "failure": "none",
+    "concept_title": "the Doppler effect",
+    "source_text": "When a wave source approaches an observer the observed frequency increases; when it recedes the observed frequency decreases.",
+    "item": {
+      "stem": "As a passing train's whistle moves from approaching to receding, how does the perceived frequency change?",
+      "choices": ["It drops, lowering the pitch as the train passes", "It rises steadily the whole time", "It stays constant throughout", "It only rises after the train passes"],
+      "answer": 0,
+      "explanation": "Observed frequency is high while approaching and low while receding, so pitch falls at passage."
+    }
+  },
+  {
+    "label": "good",
+    "failure": "none",
+    "concept_title": "amino acid charge and isoelectric point",
+    "source_text": "Below its isoelectric point an amino acid carries a net positive charge; at the pI the net charge is zero.",
+    "item": {
+      "stem": "In a cation-exchange column at pH 4, an amino acid with pI 6 will behave how?",
+      "choices": ["Bind, because it is net positive below its pI", "Flow straight through as a neutral species", "Bind only if it is net negative", "Degrade in the column"],
+      "answer": 0,
+      "explanation": "At pH below the pI the amino acid is net positive and binds the negatively charged resin."
+    }
+  },
+  {
+    "label": "bad",
+    "failure": "stem_too_short",
+    "concept_title": "buffers and the Henderson-Hasselbalch equation",
+    "source_text": "A buffer resists pH change near its pKa.",
+    "item": {
+      "stem": "Buffer pH?",
+      "choices": ["Near pKa", "Far from pKa", "At zero", "At fourteen"],
+      "answer": 0,
+      "explanation": "Too short to be a real item."
+    }
+  },
+  {
+    "label": "bad",
+    "failure": "stem_too_short",
+    "concept_title": "glycolysis net ATP yield",
+    "source_text": "Glycolysis yields two ATP.",
+    "item": {
+      "stem": "ATP?",
+      "choices": ["Two", "Four", "Six", "None"],
+      "answer": 0,
+      "explanation": "Far too short."
+    }
+  },
+  {
+    "label": "bad",
+    "failure": "stem_too_short",
+    "concept_title": "enzyme kinetics and Michaelis-Menten",
+    "source_text": "Km is at half Vmax.",
+    "item": {
+      "stem": "Km value?",
+      "choices": ["Half Vmax", "Full Vmax", "Zero", "Double"],
+      "answer": 0,
+      "explanation": "Stem is too short."
+    }
+  },
+  {
+    "label": "bad",
+    "failure": "too_few_choices",
+    "concept_title": "the Doppler effect",
+    "source_text": "Approaching sources raise observed frequency.",
+    "item": {
+      "stem": "An approaching siren produces what change in observed frequency for a listener?",
+      "choices": ["An increase", "A decrease"],
+      "answer": 0,
+      "explanation": "Only two options were provided."
+    }
+  },
+  {
+    "label": "bad",
+    "failure": "too_few_choices",
+    "concept_title": "buffers and the Henderson-Hasselbalch equation",
+    "source_text": "A buffer resists pH change near its pKa.",
+    "item": {
+      "stem": "A buffer resists pH change most effectively in which region relative to pKa?",
+      "choices": ["Near the pKa"],
+      "answer": 0,
+      "explanation": "Only one choice was provided."
+    }
+  },
+  {
+    "label": "bad",
+    "failure": "too_few_choices",
+    "concept_title": "amino acid charge and isoelectric point",
+    "source_text": "At the pI the net charge is zero.",
+    "item": {
+      "stem": "At its isoelectric point, what is the net charge on an amino acid in solution?",
+      "choices": ["Zero", "Positive"],
+      "answer": 0,
+      "explanation": "Two choices is below the minimum."
+    }
+  },
+  {
+    "label": "bad",
+    "failure": "empty_choice",
+    "concept_title": "glycolysis net ATP yield",
+    "source_text": "Glycolysis yields a net of two ATP per glucose.",
+    "item": {
+      "stem": "What is the net ATP yield of glycolysis per glucose molecule in the cytoplasm?",
+      "choices": ["Two ATP", "", "Thirty-two ATP", "Zero ATP"],
+      "answer": 0,
+      "explanation": "One choice is blank."
+    }
+  },
+  {
+    "label": "bad",
+    "failure": "empty_choice",
+    "concept_title": "enzyme kinetics and Michaelis-Menten",
+    "source_text": "A competitive inhibitor raises apparent Km.",
+    "item": {
+      "stem": "A competitive inhibitor changes which Michaelis-Menten parameter for the enzyme?",
+      "choices": ["Apparent Km rises", "   ", "Vmax doubles", "Nothing changes"],
+      "answer": 0,
+      "explanation": "A choice contains only whitespace."
+    }
+  },
+  {
+    "label": "bad",
+    "failure": "empty_choice",
+    "concept_title": "the Doppler effect",
+    "source_text": "Receding sources lower observed frequency.",
+    "item": {
+      "stem": "As a wave source recedes from an observer, the observed frequency does what?",
+      "choices": ["Decreases", "Increases", "", "Stays equal"],
+      "answer": 0,
+      "explanation": "An empty option is present."
+    }
+  },
+  {
+    "label": "bad",
+    "failure": "duplicate_choices",
+    "concept_title": "buffers and the Henderson-Hasselbalch equation",
+    "source_text": "A buffer resists pH change near its pKa.",
+    "item": {
+      "stem": "A buffer is most resistant to pH change in which region relative to its pKa value?",
+      "choices": ["Near the pKa", "Near the pKa", "Far above the pKa", "Far below the pKa"],
+      "answer": 0,
+      "explanation": "Two identical choices."
+    }
+  },
+  {
+    "label": "bad",
+    "failure": "duplicate_choices",
+    "concept_title": "enzyme kinetics and Michaelis-Menten",
+    "source_text": "Km is the substrate concentration at half Vmax.",
+    "item": {
+      "stem": "At what fraction of Vmax is the substrate concentration equal to the enzyme's Km value?",
+      "choices": ["Half of Vmax", "Full Vmax", "Full Vmax", "Zero"],
+      "answer": 0,
+      "explanation": "Duplicate distractors."
+    }
+  },
+  {
+    "label": "bad",
+    "failure": "duplicate_choices",
+    "concept_title": "glycolysis net ATP yield",
+    "source_text": "Glycolysis yields two NADH per glucose.",
+    "item": {
+      "stem": "How many NADH molecules does glycolysis produce from a single glucose molecule?",
+      "choices": ["Two NADH", "Six NADH", "Two NADH", "No NADH"],
+      "answer": 0,
+      "explanation": "Repeated correct text in two slots."
+    }
+  },
+  {
+    "label": "bad",
+    "failure": "answer_out_of_range",
+    "concept_title": "the Doppler effect",
+    "source_text": "Approaching sources raise observed frequency.",
+    "item": {
+      "stem": "An approaching ambulance siren produces what change in the frequency heard by a bystander?",
+      "choices": ["Higher frequency", "Lower frequency", "No change", "Silence"],
+      "answer": 7,
+      "explanation": "Answer index points past the choices."
+    }
+  },
+  {
+    "label": "bad",
+    "failure": "answer_out_of_range",
+    "concept_title": "amino acid charge and isoelectric point",
+    "source_text": "Below its pI an amino acid is net positive.",
+    "item": {
+      "stem": "Below its isoelectric point, what net charge does an amino acid carry in aqueous solution?",
+      "choices": ["Net positive", "Net negative", "Zero", "Undefined"],
+      "answer": -1,
+      "explanation": "Negative answer index is invalid."
+    }
+  },
+  {
+    "label": "bad",
+    "failure": "answer_out_of_range",
+    "concept_title": "buffers and the Henderson-Hasselbalch equation",
+    "source_text": "pH equals pKa when the ratio is one.",
+    "item": {
+      "stem": "When a buffer's conjugate base and acid are equal in concentration, the pH equals what?",
+      "choices": ["The pKa", "Zero", "Fourteen", "Seven always"],
+      "answer": 4,
+      "explanation": "Index 4 does not exist for four choices."
+    }
+  },
+  {
+    "label": "bad",
+    "failure": "answer_leaks_into_stem",
+    "concept_title": "enzyme kinetics and Michaelis-Menten",
+    "source_text": "A competitive inhibitor raises apparent Km while Vmax stays the same.",
+    "item": {
+      "stem": "Which statement is correct: a competitive inhibitor raises apparent Km while Vmax stays the same?",
+      "choices": ["a competitive inhibitor raises apparent Km while Vmax stays the same", "Vmax falls", "Km falls", "Nothing changes"],
+      "answer": 0,
+      "explanation": "The correct option is copied verbatim into the stem."
+    }
+  },
+  {
+    "label": "bad",
+    "failure": "answer_leaks_into_stem",
+    "concept_title": "glycolysis net ATP yield",
+    "source_text": "Glycolysis yields a net of two ATP per glucose.",
+    "item": {
+      "stem": "It is true that glycolysis yields a net of two ATP per glucose, so which option is correct?",
+      "choices": ["glycolysis yields a net of two ATP per glucose", "Four ATP net", "Thirty-two ATP net", "No ATP at all"],
+      "answer": 0,
+      "explanation": "Answer text appears directly in the stem."
+    }
+  },
+  {
+    "label": "bad",
+    "failure": "answer_leaks_into_stem",
+    "concept_title": "the Doppler effect",
+    "source_text": "Approaching sources raise observed frequency.",
+    "item": {
+      "stem": "Recall that an approaching source raises the observed frequency; which choice matches that fact?",
+      "choices": ["an approaching source raises the observed frequency", "It lowers the frequency", "It has no effect", "It silences the source"],
+      "answer": 0,
+      "explanation": "The stem gives away the correct option."
+    }
+  },
+  {
+    "label": "bad",
+    "failure": "answer_leaks_into_stem",
+    "concept_title": "amino acid charge and isoelectric point",
+    "source_text": "At the pI the net charge is zero.",
+    "item": {
+      "stem": "Given that at the isoelectric point the net charge is zero, which statement is right?",
+      "choices": ["at the isoelectric point the net charge is zero", "It is net positive", "It is net negative", "It is undefined"],
+      "answer": 0,
+      "explanation": "Correct answer is embedded in the stem."
+    }
+  },
+  {
+    "label": "bad",
+    "failure": "missing_explanation",
+    "concept_title": "buffers and the Henderson-Hasselbalch equation",
+    "source_text": "A buffer resists pH change near its pKa.",
+    "item": {
+      "stem": "A weak-acid buffer resists pH change most strongly within about one unit of which value?",
+      "choices": ["Its pKa", "pH zero", "pH fourteen", "Its boiling point"],
+      "answer": 0,
+      "explanation": ""
+    }
+  },
+  {
+    "label": "bad",
+    "failure": "missing_explanation",
+    "concept_title": "glycolysis net ATP yield",
+    "source_text": "Glycolysis occurs in the cytoplasm.",
+    "item": {
+      "stem": "In which cellular compartment does the glycolysis pathway producing pyruvate occur?",
+      "choices": ["The cytoplasm", "The nucleus", "The matrix", "The ribosome"],
+      "answer": 0,
+      "explanation": "   "
+    }
+  },
+  {
+    "label": "bad",
+    "failure": "missing_explanation",
+    "concept_title": "enzyme kinetics and Michaelis-Menten",
+    "source_text": "A low Km means high apparent affinity.",
+    "item": {
+      "stem": "A very low Km for a substrate indicates what about the enzyme's binding affinity?",
+      "choices": ["High apparent affinity", "Low affinity", "No binding", "A high Vmax requirement"],
+      "answer": 0,
+      "explanation": ""
+    }
+  },
+  {
+    "label": "bad",
+    "failure": "off_topic",
+    "concept_title": "buffers and the Henderson-Hasselbalch equation",
+    "source_text": "A buffer resists pH change near its pKa.",
+    "item": {
+      "stem": "Which planet is closest to the sun in our solar system?",
+      "choices": ["Mercury", "Venus", "Earth", "Mars"],
+      "answer": 0,
+      "explanation": "Mercury orbits nearest the sun, unrelated to the concept."
+    }
+  },
+  {
+    "label": "bad",
+    "failure": "off_topic",
+    "concept_title": "the Doppler effect",
+    "source_text": "Approaching sources raise observed frequency.",
+    "item": {
+      "stem": "Who painted the ceiling of a famous chapel during the Renaissance period?",
+      "choices": ["Michelangelo", "Napoleon", "Edison", "Darwin"],
+      "answer": 0,
+      "explanation": "An art history question with no link to the concept."
+    }
+  },
+  {
+    "label": "bad",
+    "failure": "off_topic",
+    "concept_title": "glycolysis net ATP yield",
+    "source_text": "Glycolysis yields a net of two ATP per glucose in the cytoplasm.",
+    "item": {
+      "stem": "In which year did the first manned mission land people on the moon?",
+      "choices": ["Nineteen sixty-nine", "Nineteen forty-five", "Two thousand one", "Eighteen sixty-five"],
+      "answer": 0,
+      "explanation": "A history question unrelated to the metabolic concept."
+    }
+  }
+]
