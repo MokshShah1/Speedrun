@@ -40,7 +40,8 @@ if (-not (Test-Path $ndkHome)) {
 $env:ANDROID_HOME = $AndroidHome
 $env:ANDROID_NDK_HOME = $ndkHome
 $env:ANDROID_NDK_VERSION = $NdkVersion
-if ($env:PATH -notlike "*msys64*") { $env:PATH += ";c:\msys64\usr\bin" }
+# Match usr\bin specifically: ucrt64\bin on PATH would satisfy "*msys64*".
+if ($env:PATH -notlike "*msys64\usr\bin*") { $env:PATH += ";c:\msys64\usr\bin" }
 
 Step "Adding Rust Android targets"
 rustup target add aarch64-linux-android armv7-linux-androideabi x86_64-linux-android i686-linux-android
@@ -65,16 +66,35 @@ try {
     Pop-Location
 }
 
+Step "Bootstrapping the anki build system (protoc)"
+Push-Location $ankiSub
+try {
+    # A stale generated build.ninja can only regenerate itself through a build
+    # edge that still uses the previous runner path; deleting it forces the
+    # direct `cargo run -p configure` bootstrap instead.
+    Remove-Item "out\build.ninja" -Force -ErrorAction SilentlyContinue
+    # The backend's .cargo config points PROTOC at anki/out/extracted/protoc,
+    # which only exists after this target has run.
+    cmd /c "tools\ninja.bat extract:protoc"
+    if ($LASTEXITCODE -ne 0) { throw "anki build bootstrap failed (tools\ninja.bat extract:protoc)" }
+} finally {
+    Pop-Location
+}
+
 Step "Refreshing Cargo.lock against the fork"
 Push-Location $BackendRepo
 try {
     # No 2>&1 here: under Windows PowerShell 5.1 + $ErrorActionPreference=Stop,
     # redirecting native stderr turns cargo's progress output into fatal errors.
+    # Native exit codes are also not covered by ErrorActionPreference, so check
+    # them explicitly or the script reports success after a failed build.
     cargo check | Out-Host
+    if ($LASTEXITCODE -ne 0) { throw "cargo check against the fork failed" }
 
     Step "Building the backend .aar (cargo run -p build_rust)"
     # Set RELEASE=1 for an optimized build once a debug build is confirmed.
     cargo run -p build_rust | Out-Host
+    if ($LASTEXITCODE -ne 0) { throw "backend build failed (cargo run -p build_rust)" }
 
     Step "Done - locating .aar"
     $aars = Get-ChildItem -Recurse -Filter *.aar -ErrorAction SilentlyContinue |

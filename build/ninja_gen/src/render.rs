@@ -23,9 +23,13 @@ impl Build {
         .unwrap();
 
         writeln!(&mut buf, "builddir = {}", self.buildroot.as_str()).unwrap();
+        // n2/ninja hand this to CreateProcess as the command's first token on
+        // Windows, which cannot resolve a relative exe path containing forward
+        // slashes; all other command heads are backslash-normalized outputs.
+        let sep = if cfg!(windows) { '\\' } else { '/' };
         writeln!(
             &mut buf,
-            "runner = $builddir/rust/release/{}",
+            "runner = $builddir{sep}rust{sep}release{sep}{}",
             with_exe("runner")
         )
         .unwrap();
