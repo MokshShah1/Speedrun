@@ -73,8 +73,8 @@ pub struct Item {
 }
 
 /// One graded answer to a transfer item. The append-only unit of sync: the
-/// concept's learned `theta` is *derived* by replaying these in canonical order,
-/// so syncing the log (union by `guid`) is conflict-free and idempotent.
+/// concept's learned `theta` is *derived* by replaying these in canonical
+/// order, so syncing the log (union by `guid`) is conflict-free and idempotent.
 #[derive(Debug, Clone, PartialEq)]
 pub struct TransferReview {
     /// Device-local row id (not stable across devices).
@@ -86,6 +86,10 @@ pub struct TransferReview {
     pub correct: bool,
     pub latency_ms: i64,
     pub ts: i64,
+    /// Item difficulty (IRT b) captured at answer time. Persisted and synced in
+    /// the review record so replay is self-contained and converges across
+    /// devices even when an item is missing from the local item table.
+    pub difficulty: f64,
 }
 
 /// The learned transfer state for a concept.

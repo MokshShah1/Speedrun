@@ -26,7 +26,6 @@ use crate::speedrun::elo_update;
 use crate::speedrun::ConceptState;
 use crate::speedrun::TransferReview;
 use crate::speedrun::ELO_K;
-use crate::speedrun::REPRESENTATIVE_DIFFICULTY;
 
 /// Outcome of importing a remote review log.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -53,7 +52,11 @@ impl Collection {
         incoming: Vec<TransferReview>,
     ) -> Result<ImportStats> {
         self.storage.ensure_speedrun_tables()?;
-        let existing = self.storage.transfer_review_guids()?;
+        // Mutable so we can also dedupe *within* a single incoming payload: a
+        // guid seen earlier in this batch must not be inserted twice (e.g. a
+        // caller concatenating several peers' logs), which would double-apply
+        // its Elo update and inflate n_obs.
+        let mut existing = self.storage.transfer_review_guids()?;
         let mut next_id = self.storage.next_transfer_review_id()?;
 
         let mut affected: std::collections::BTreeSet<i64> = Default::default();
@@ -71,8 +74,10 @@ impl Collection {
                     correct: r.correct,
                     latency_ms: r.latency_ms,
                     ts: r.ts,
+                    difficulty: r.difficulty,
                 };
                 col.storage.add_transfer_review(&stored)?;
+                existing.insert(r.guid.clone());
                 next_id += 1;
                 added += 1;
                 affected.insert(r.concept_id);
@@ -88,10 +93,10 @@ impl Collection {
     }
 
     /// Replay a concept's full review log from the neutral prior in canonical
-    /// `(ts, guid)` order. Returns `None` when there are no reviews. This is the
-    /// single source of truth for `theta`: both the live record path and sync
-    /// derive state from it, so a device's score is identical before and after a
-    /// sync (no incremental-vs-replay drift).
+    /// `(ts, guid)` order. Returns `None` when there are no reviews. This is
+    /// the single source of truth for `theta`: both the live record path
+    /// and sync derive state from it, so a device's score is identical
+    /// before and after a sync (no incremental-vs-replay drift).
     pub(crate) fn replayed_concept_state(
         &mut self,
         concept_id: i64,
@@ -100,15 +105,13 @@ impl Collection {
         if reviews.is_empty() {
             return Ok(None);
         }
-        let difficulties = self.storage.item_difficulties()?;
         let mut theta = 0.0;
         let mut last_practiced = 0i64;
         for r in &reviews {
-            let b = difficulties
-                .get(&r.item_id)
-                .copied()
-                .unwrap_or(REPRESENTATIVE_DIFFICULTY);
-            theta = elo_update(theta, b, r.correct, ELO_K);
+            // Difficulty travels in the record (not a local item-table lookup),
+            // so two devices holding the same log replay to exactly the same
+            // theta even if one of them lacks the item locally.
+            theta = elo_update(theta, r.difficulty, r.correct, ELO_K);
             // ts is milliseconds; concept_state.last_practiced is seconds.
             last_practiced = last_practiced.max(r.ts / 1000);
         }
@@ -238,8 +241,9 @@ mod test {
         Ok(())
     }
 
-    /// Replay order is canonical: importing a log in a shuffled order yields the
-    /// same ability as the original device, because both sort by (ts, guid).
+    /// Replay order is canonical: importing a log in a shuffled order yields
+    /// the same ability as the original device, because both sort by (ts,
+    /// guid).
     #[test]
     fn replay_is_order_independent_of_arrival() -> Result<()> {
         let mut a = open_col();
@@ -275,6 +279,70 @@ mod test {
 
         let state = col.storage.get_concept_state(1)?.unwrap();
         assert_eq!(state.n_obs, 7);
+        Ok(())
+    }
+
+    /// A single incoming payload that carries the same guid twice (e.g. a
+    /// caller concatenating two peers' logs) must still insert it only
+    /// once, so the Elo update is applied once and n_obs is not inflated.
+    #[test]
+    fn duplicate_guids_within_one_import_are_deduped() -> Result<()> {
+        let mut a = open_col();
+        seed(&mut a);
+        let dup = TransferReview {
+            id: 0,
+            guid: "DUPGUID".into(),
+            item_id: 10,
+            concept_id: 1,
+            correct: true,
+            latency_ms: 1000,
+            ts: 1000,
+            difficulty: 0.2,
+        };
+        let stats = a.import_transfer_log(vec![dup.clone(), dup])?;
+        assert_eq!(stats.added, 1);
+        assert_eq!(stats.total, 1);
+        assert_eq!(a.storage.get_concept_state(1)?.unwrap().n_obs, 1);
+        Ok(())
+    }
+
+    /// A device that imports reviews for an item it does NOT have locally still
+    /// converges to the authoring device's theta, because the item difficulty
+    /// travels in the review record rather than being looked up locally.
+    /// (Before this fix the importer fell back to a representative difficulty
+    /// and diverged.)
+    #[test]
+    fn converges_when_item_missing_locally() -> Result<()> {
+        let mut a = open_col();
+        seed(&mut a); // A has concept 1 and item 10 (difficulty 0.2)
+        for i in 0..6 {
+            record(&mut a, i % 2 == 0);
+        }
+        let theta_a = theta(&mut a);
+        let log = a.export_transfer_log()?;
+        assert!(log.iter().all(|r| (r.difficulty - 0.2).abs() < 1e-9));
+
+        // B has the concept but NOT the item.
+        let mut b = open_col();
+        let _ = SpeedrunService::upsert_concept(
+            &mut b,
+            pb::Concept {
+                id: 1,
+                outline_id: "C1".into(),
+                section: "bb".into(),
+                title: "t".into(),
+                exam_weight: 1.0,
+            },
+        )
+        .unwrap();
+        let stats = b.import_transfer_log(log)?;
+        assert_eq!(stats.added, 6);
+        assert!(
+            (theta(&mut b) - theta_a).abs() < 1e-12,
+            "diverged: b={} a={}",
+            theta(&mut b),
+            theta_a
+        );
         Ok(())
     }
 }

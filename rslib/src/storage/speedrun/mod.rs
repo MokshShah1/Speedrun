@@ -35,7 +35,10 @@ impl SqliteStorage {
         // unique key for every historical row.
         if self
             .db
-            .execute("ALTER TABLE transfer_review ADD COLUMN guid text NOT NULL DEFAULT ''", [])
+            .execute(
+                "ALTER TABLE transfer_review ADD COLUMN guid text NOT NULL DEFAULT ''",
+                [],
+            )
             .is_ok()
         {
             let blanks: Vec<i64> = self
@@ -49,6 +52,36 @@ impl SqliteStorage {
                     params![crate::notes::base91_u64(), id],
                 )?;
             }
+        }
+        // Create the guid index only now that the column is guaranteed to exist
+        // (fresh collections have it from CREATE TABLE; older ones just got it
+        // from the ALTER above). Creating it inside the CREATE_TABLES batch would
+        // fail on a pre-guid collection and abort the migration meant to fix it.
+        self.db.execute_batch(
+            "CREATE INDEX IF NOT EXISTS idx_transfer_review_guid ON transfer_review (guid)",
+        )?;
+        // Defensive migration for the synced `difficulty` column (added after the
+        // original engine). New collections get it from CREATE TABLE; older ones
+        // get it here. Backfill historical rows from the local item table so they
+        // replay with their real difficulty; rows whose item is gone keep the
+        // representative default (0.5).
+        if self
+            .db
+            .execute(
+                "ALTER TABLE transfer_review ADD COLUMN difficulty real NOT NULL DEFAULT 0.5",
+                [],
+            )
+            .is_ok()
+        {
+            self.db.execute(
+                "UPDATE transfer_review
+                 SET difficulty = (
+                     SELECT difficulty FROM speedrun_item
+                     WHERE speedrun_item.id = transfer_review.item_id
+                 )
+                 WHERE item_id IN (SELECT id FROM speedrun_item)",
+                [],
+            )?;
         }
         Ok(())
     }
@@ -151,8 +184,8 @@ impl SqliteStorage {
         self.db
             .prepare_cached(
                 "INSERT OR REPLACE INTO transfer_review
-                   (id, guid, item_id, concept_id, correct, latency_ms, ts, usn)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, 0)",
+                   (id, guid, item_id, concept_id, correct, latency_ms, ts, difficulty, usn)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)",
             )?
             .execute(params![
                 r.id,
@@ -162,6 +195,7 @@ impl SqliteStorage {
                 r.correct as i64,
                 r.latency_ms,
                 r.ts,
+                r.difficulty,
             ])?;
         Ok(())
     }
@@ -178,7 +212,7 @@ impl SqliteStorage {
     pub(crate) fn all_transfer_reviews(&self) -> Result<Vec<TransferReview>> {
         self.db
             .prepare_cached(
-                "SELECT id, guid, item_id, concept_id, correct, latency_ms, ts
+                "SELECT id, guid, item_id, concept_id, correct, latency_ms, ts, difficulty
                  FROM transfer_review ORDER BY ts, guid",
             )?
             .query_and_then([], row_to_transfer_review)?
@@ -192,7 +226,7 @@ impl SqliteStorage {
     ) -> Result<Vec<TransferReview>> {
         self.db
             .prepare_cached(
-                "SELECT id, guid, item_id, concept_id, correct, latency_ms, ts
+                "SELECT id, guid, item_id, concept_id, correct, latency_ms, ts, difficulty
                  FROM transfer_review WHERE concept_id = ? ORDER BY ts, guid",
             )?
             .query_and_then([concept_id], row_to_transfer_review)?
@@ -294,6 +328,7 @@ fn row_to_transfer_review(row: &rusqlite::Row) -> Result<TransferReview> {
         correct: row.get::<_, i64>(4)? != 0,
         latency_ms: row.get(5)?,
         ts: row.get(6)?,
+        difficulty: row.get(7)?,
     })
 }
 

@@ -12,14 +12,24 @@ use fsrs::FSRS;
 use fsrs::FSRS5_DEFAULT_DECAY;
 
 use crate::prelude::*;
+use crate::search::JoinSearches;
+use crate::search::Negated;
+use crate::search::SearchNode;
 use crate::search::SortMode;
+use crate::search::StateKind;
 
 impl Collection {
     /// Mean current FSRS retrievability across the cards tagged to a concept.
     /// Returns None when the concept has no tagged cards with a memory state.
     pub(crate) fn concept_recall(&mut self, outline_id: &str) -> Result<Option<f64>> {
-        let search = format!("tag:speedrun::{outline_id}");
-        let card_ids = self.search_cards(search.as_str(), SortMode::NoOrder)?;
+        // Build the tag search through SearchNode so the outline_id is escaped
+        // (a wildcard or space would otherwise match the wrong cards), and
+        // exclude intentionally-suspended cards: their retrievability keeps
+        // decaying and would drag the concept's recall toward zero even though
+        // the user removed them from scheduling.
+        let search = SearchNode::from_tag_name(&format!("speedrun::{outline_id}"))
+            .and(StateKind::Suspended.negated());
+        let card_ids = self.search_cards(search, SortMode::NoOrder)?;
         if card_ids.is_empty() {
             return Ok(None);
         }

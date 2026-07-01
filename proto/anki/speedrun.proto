@@ -125,7 +125,8 @@ message NextTransferItemResponse {
 message ExportTransferLogRequest {}
 
 // One transfer review as it travels between devices. `guid` is the cross-device
-// identity; the local row id is deliberately omitted because it is device-local.
+// identity; the local row id is deliberately omitted because it is
+// device-local.
 message TransferReviewProto {
   string guid = 1;
   int64 item_id = 2;
@@ -135,6 +136,11 @@ message TransferReviewProto {
   // Answer time in epoch milliseconds; the canonical replay sort key (with guid
   // as a tiebreak).
   int64 ts = 6;
+  // Item difficulty (IRT b) captured at answer time. Carried in the log so a
+  // replay is self-contained: a device that imported this review but lacks the
+  // item locally still computes the same theta as the author (convergence),
+  // instead of falling back to a representative difficulty.
+  double difficulty = 7;
 }
 
 message TransferLog {

@@ -69,7 +69,10 @@ impl crate::services::SpeedrunService for Collection {
         .map(Into::into)
     }
 
-    fn mastery_query(&mut self, input: pb::MasteryQueryRequest) -> Result<pb::MasteryQueryResponse> {
+    fn mastery_query(
+        &mut self,
+        input: pb::MasteryQueryRequest,
+    ) -> Result<pb::MasteryQueryResponse> {
         self.storage.ensure_speedrun_tables()?;
         self.mastery_query_inner(input.concept_ids)
     }
@@ -82,10 +85,7 @@ impl crate::services::SpeedrunService for Collection {
         self.transfer_gap_queue_inner(input.limit)
     }
 
-    fn readiness_report(
-        &mut self,
-        _input: pb::ReadinessRequest,
-    ) -> Result<pb::ReadinessResponse> {
+    fn readiness_report(&mut self, _input: pb::ReadinessRequest) -> Result<pb::ReadinessResponse> {
         self.storage.ensure_speedrun_tables()?;
         self.readiness_report_inner()
     }
@@ -134,6 +134,7 @@ impl crate::services::SpeedrunService for Collection {
                 correct: r.correct,
                 latency_ms: r.latency_ms,
                 ts: r.ts,
+                difficulty: r.difficulty,
             })
             .collect();
         Ok(pb::TransferLog { reviews })
@@ -154,6 +155,7 @@ impl crate::services::SpeedrunService for Collection {
                 correct: r.correct,
                 latency_ms: r.latency_ms,
                 ts: r.ts,
+                difficulty: r.difficulty,
             })
             .collect();
         let stats = Collection::import_transfer_log(self, incoming)?;
@@ -209,6 +211,14 @@ impl Collection {
     ) -> Result<()> {
         let previous = self.storage.get_concept_state(concept_id)?;
 
+        // Capture the item's difficulty now so it travels in the log record; a
+        // replay (here or on a peer that lacks the item) is then self-contained.
+        let difficulty = self
+            .storage
+            .item_difficulties()?
+            .get(&item_id)
+            .copied()
+            .unwrap_or(crate::speedrun::REPRESENTATIVE_DIFFICULTY);
         // Append the review to the log first; `theta` is then *derived* by
         // replaying that log, so the live score equals what a sync replay would
         // produce (single source of truth, no incremental drift).
@@ -220,12 +230,13 @@ impl Collection {
             correct,
             latency_ms,
             ts: TimestampMillis::now().0,
+            difficulty,
         };
         self.add_transfer_review_undoable(review)?;
 
-        let (theta, n_obs, last_practiced) = self
-            .replayed_concept_state(concept_id)?
-            .unwrap_or((0.0, 0, TimestampSecs::now().0));
+        let (theta, n_obs, last_practiced) =
+            self.replayed_concept_state(concept_id)?
+                .unwrap_or((0.0, 0, TimestampSecs::now().0));
         let new_state = ConceptState {
             concept_id,
             theta,
@@ -296,11 +307,21 @@ impl Collection {
         for c in &concepts {
             let state = self.storage.get_concept_state(c.id)?;
             let theta = state.as_ref().map(|s| s.theta).unwrap_or(0.0);
+            let n_obs = state.as_ref().map(|s| s.n_obs).unwrap_or(0);
+            let transfer = concept_transfer(theta);
+            // Honour the give-up rule: a concept the readiness report told the
+            // user to abandon (enough attempts, transfer still low) must not be
+            // recommended back to them by the study queue.
+            if n_obs >= crate::speedrun::GIVE_UP_MIN_OBS
+                && transfer < crate::speedrun::GIVE_UP_TRANSFER
+            {
+                continue;
+            }
             let recall = self
                 .concept_recall(&c.outline_id)?
                 .or_else(|| state.as_ref().map(|s| s.r_cache))
                 .unwrap_or(0.0);
-            let g = gap(recall, concept_transfer(theta));
+            let g = gap(recall, transfer);
             scored.push((c.exam_weight * g, c.id));
         }
         // Highest weighted gap first.
@@ -388,7 +409,8 @@ impl Collection {
         let readiness = scale_score(performance, SCORE_MIN, SCORE_MAX);
         // Range widens as coverage drops: a small floor of uncertainty plus a
         // term proportional to the un-observed share of the exam.
-        let half_width = (span * 0.08).round() as i32 + (span * 0.5 * (1.0 - coverage)).round() as i32;
+        let half_width =
+            (span * 0.08).round() as i32 + (span * 0.5 * (1.0 - coverage)).round() as i32;
 
         // Give-up list and reasons.
         let give_up: Vec<i64> = rows
@@ -577,7 +599,11 @@ mod test {
             },
         )?;
         // High recall, prior transfer (theta 0) -> a large positive gap.
-        assert!(m.entries[0].recall > 0.9, "recall = {}", m.entries[0].recall);
+        assert!(
+            m.entries[0].recall > 0.9,
+            "recall = {}",
+            m.entries[0].recall
+        );
         assert!((m.entries[0].gap - (m.entries[0].recall - m.entries[0].transfer)).abs() < 1e-9);
         assert!(m.entries[0].gap > 0.4, "gap = {}", m.entries[0].gap);
         Ok(())
@@ -700,6 +726,30 @@ mod test {
             pb::TransferGapQueueRequest { limit: 0 },
         )?;
         assert_eq!(queue.concept_ids.first(), Some(&2));
+        Ok(())
+    }
+
+    /// A concept flagged by the give-up rule (enough attempts, transfer still
+    /// low) must not be recommended by the study queue.
+    #[test]
+    fn queue_excludes_given_up_concepts() -> Result<()> {
+        let mut col = open_col();
+        add_concept(&mut col, 1, 0.5);
+        add_concept(&mut col, 2, 0.5);
+        // Concept 2: many attempts, transfer still low -> give-up fires.
+        col.storage.upsert_concept_state(&ConceptState {
+            concept_id: 2,
+            theta: -3.0,
+            n_obs: 12,
+            r_cache: 0.9,
+            last_practiced: 0,
+        })?;
+        let queue = SpeedrunService::transfer_gap_queue(
+            &mut col,
+            pb::TransferGapQueueRequest { limit: 0 },
+        )?;
+        assert!(!queue.concept_ids.contains(&2));
+        assert!(queue.concept_ids.contains(&1));
         Ok(())
     }
 }
