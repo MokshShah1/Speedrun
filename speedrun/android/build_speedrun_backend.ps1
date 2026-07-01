@@ -56,7 +56,10 @@ try {
         git remote set-url speedrun $Fork
     }
     git fetch speedrun --tags
-    git checkout "speedrun/$ForkBranch" --recurse-submodules
+    git checkout "speedrun/$ForkBranch"
+    # Nested submodules must be updated separately: `checkout --recurse-submodules`
+    # can't fetch commits it doesn't have yet, but `submodule update` can.
+    git submodule update --init --recursive
     Write-Host "anki submodule now at:" (git rev-parse --short HEAD)
 } finally {
     Pop-Location
@@ -65,13 +68,15 @@ try {
 Step "Refreshing Cargo.lock against the fork"
 Push-Location $BackendRepo
 try {
-    cargo check 2>&1 | Out-Host
+    # No 2>&1 here: under Windows PowerShell 5.1 + $ErrorActionPreference=Stop,
+    # redirecting native stderr turns cargo's progress output into fatal errors.
+    cargo check | Out-Host
 
     Step "Building the backend .aar (cargo run -p build_rust)"
     # Set RELEASE=1 for an optimized build once a debug build is confirmed.
-    cargo run -p build_rust 2>&1 | Out-Host
+    cargo run -p build_rust | Out-Host
 
-    Step "Done — locating .aar"
+    Step "Done - locating .aar"
     $aars = Get-ChildItem -Recurse -Filter *.aar -ErrorAction SilentlyContinue |
         Sort-Object LastWriteTime -Descending
     if ($aars) {

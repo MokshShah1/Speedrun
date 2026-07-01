@@ -1,5 +1,11 @@
 # Claude Code Configuration
 
+> **SPEEDRUN PROJECT — READ FIRST:** This repo is a fork of Anki hosting the
+> **Speedrun** MCAT app on the `speedrun` branch. For full project context
+> (thesis, engine model R/T/G, file map, build/test, status, decisions,
+> reviewer feedback), read **@speedrun/CONTEXT.md** before anything else. The
+> Anki upstream guidance below still applies to the underlying codebase.
+
 > **Note:** Every command you need — building, running, testing, linting,
 > formatting — is defined as a recipe in the project `justfile`. Run
 > `just --list` to see them. Do not invoke `./ninja`, `./run`, or scripts
