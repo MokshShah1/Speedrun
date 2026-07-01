@@ -44,13 +44,13 @@ Speedrun RPCs are additionally available to call.
 
 ## Versions (pinned, verified against the backend repo)
 
-| thing | value | note |
-|---|---|---|
-| Rust toolchain | **1.92.0** | matches our fork's `rust-toolchain.toml` exactly — no mismatch |
-| NDK | **29.0.14206865** | from backend `gradle/libs.versions.toml` |
-| compileSdk / targetSdk | 36 | |
-| minSdk | 23 | |
-| backend build entrypoint | `cargo run -p build_rust` (`build.bat`) | downloads target libs + builds `.aar` |
+| thing                    | value                                   | note                                                           |
+| ------------------------ | --------------------------------------- | -------------------------------------------------------------- |
+| Rust toolchain           | **1.92.0**                              | matches our fork's `rust-toolchain.toml` exactly — no mismatch |
+| NDK                      | **29.0.14206865**                       | from backend `gradle/libs.versions.toml`                       |
+| compileSdk / targetSdk   | 36                                      |                                                                |
+| minSdk                   | 23                                      |                                                                |
+| backend build entrypoint | `cargo run -p build_rust` (`build.bat`) | downloads target libs + builds `.aar`                          |
 
 ## Prerequisites
 
@@ -127,7 +127,7 @@ differ, set AnkiDroid's value to the backend's.
 
 Open **Anki-Android** in Android Studio, let gradle sync (cargo must be on PATH —
 launch Studio from the same shell if it complains), then Run on your x86_64
-emulator (or arm64 device). 
+emulator (or arm64 device).
 
 **Proof of the shared engine:** import the MileDown `.apkg` and do a normal
 review. AnkiDroid is now running entirely on our forked Rust backend.

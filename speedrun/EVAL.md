@@ -16,11 +16,11 @@ scored against an always-0.5 baseline and a base-rate baseline.
 
 Observed (`python speedrun/eval/calibration.py`, 2160 trials):
 
-| predictor | log-loss | Brier | ECE |
-|---|---|---|---|
+| predictor             | log-loss  | Brier     | ECE       |
+| --------------------- | --------- | --------- | --------- |
 | **engine (full run)** | **0.573** | **0.194** | **0.024** |
-| baseline always-0.5 | 0.693 | 0.250 | — |
-| baseline base-rate | 0.692 | 0.249 | — |
+| baseline always-0.5   | 0.693     | 0.250     | —         |
+| baseline base-rate    | 0.692     | 0.249     | —         |
 
 The reliability table shows predicted ≈ observed in every populated bin. The
 script **exits non-zero unless the engine beats both baselines on log-loss**, so
@@ -40,13 +40,13 @@ equal** across arms; only the order differs:
 
 Run under two explicit learner models, letting the data decide:
 
-| scenario | effect (interleaved − blocked) | 95% CI | verdict |
-|---|---|---|---|
-| order-agnostic (no forgetting) | +0.0000 | [+0.0000, +0.0000] | **NULL** |
-| forgetting learner (decay 0.04) | +0.2854 | [+0.2825, +0.2882] | effect |
+| scenario                        | effect (interleaved − blocked) | 95% CI             | verdict  |
+| ------------------------------- | ------------------------------ | ------------------ | -------- |
+| order-agnostic (no forgetting)  | +0.0000                        | [+0.0000, +0.0000] | **NULL** |
+| forgetting learner (decay 0.04) | +0.2854                        | [+0.2825, +0.2882] | effect   |
 
 The null in the order-agnostic case is the point: with equal practice and no
-forgetting, order *cannot* matter, so a credible harness must report no effect
+forgetting, order _cannot_ matter, so a credible harness must report no effect
 there (if it didn't, it would be rigged). Interleaving helps only once a
 forgetting mechanism is present — the spacing benefit — and that mechanism is
 stated up front, not smuggled into the conclusion. The script asserts both:
@@ -92,14 +92,14 @@ transactions plus WAL mean a crash costs at most the one unfinished answer.
 Times the hot paths through the real backend so an accidental `O(n^2)` can't slip
 in unnoticed. Representative run (30 concepts, 6-rung ladder each):
 
-| operation | throughput | per call |
-|---|---|---|
-| `record_transfer_review` | ~900/s | ~1.1 ms |
-| `mastery_query` (all concepts) | ~200/s | ~4.9 ms |
-| `readiness_report` | ~230/s | ~4.3 ms |
-| `transfer_gap_queue` | ~260/s | ~3.9 ms |
-| `export_transfer_log` | ~100/s | ~9.9 ms |
-| `import_transfer_log` (1000 rows) | ~20000/s | ~0.05 ms |
+| operation                         | throughput | per call |
+| --------------------------------- | ---------- | -------- |
+| `record_transfer_review`          | ~900/s     | ~1.1 ms  |
+| `mastery_query` (all concepts)    | ~200/s     | ~4.9 ms  |
+| `readiness_report`                | ~230/s     | ~4.3 ms  |
+| `transfer_gap_queue`              | ~260/s     | ~3.9 ms  |
+| `export_transfer_log`             | ~100/s     | ~9.9 ms  |
+| `import_transfer_log` (1000 rows) | ~20000/s   | ~0.05 ms |
 
 The script enforces soft floors (record ≥ 100/s, dashboard ≥ 20/s) and exits
 non-zero below them, so it gates a build. Recording is a few hundred µs of real

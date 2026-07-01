@@ -30,7 +30,7 @@ named source text + concept + level
 The whole thing runs **offline with no API key** via the deterministic
 `MockProvider`, which is what the tests and the "AI-off" path use. Set
 `SPEEDRUN_AI_PROVIDER=openai` and `OPENAI_API_KEY` to switch to a real model;
-the prompt instructs the model to use only the source, to test *use* of the
+the prompt instructs the model to use only the source, to test _use_ of the
 concept on a novel problem, and to never put the answer in the stem.
 
 ## Quality bar (`checker.py`)
@@ -64,11 +64,11 @@ An item is **rejected** if any rule fails:
 intended failure type recorded for each bad item). `run_eval.py` runs the
 checker over the set and compares it to a trivial **accept-all baseline**:
 
-| metric | accept-all baseline | checker |
-|---|---|---|
-| accuracy | 0.50 | **1.00** |
-| precision | — | 1.00 |
-| recall | — | 1.00 |
+| metric    | accept-all baseline | checker  |
+| --------- | ------------------- | -------- |
+| accuracy  | 0.50                | **1.00** |
+| precision | —                   | 1.00     |
+| recall    | —                   | 1.00     |
 
 The thresholds are **pre-set and committed** (no post-hoc tuning):
 `CUTOFF = 0.25` (checker must beat baseline accuracy by this margin) and
@@ -127,7 +127,7 @@ The committed decision is:
 
 Rejected alternatives: pure hand-authoring (highest quality, does not scale to
 the full AAMC outline); pure community-sourcing (uneven quality, licensing).
-Both remain usable *inputs* because anything can be fed through the same checker.
+Both remain usable _inputs_ because anything can be fed through the same checker.
 
 ## Quality ceiling — live run on the glucagon cluster
 
@@ -140,7 +140,7 @@ regulation** (concept `1D`), `gpt-4o-mini`, 5 candidates per rung across L0–L5
   questions, well grounded in the source, with plausible distractors and no
   verbatim source copying.
 - **The model ignores the difficulty ladder:** it wrote clinical-vignette
-  *application* questions at **every** rung, including L0/L1 which must be
+  _application_ questions at **every** rung, including L0/L1 which must be
   definition/paraphrase. Left unchecked this flattens the ladder — and a flat
   ladder makes `T` (and therefore `G`) meaningless.
 - **One keyed answer was wrong:** an L2 item marked "all of the above" correct
@@ -148,14 +148,14 @@ regulation** (concept `1D`), `gpt-4o-mini`, 5 candidates per rung across L0–L5
   mechanical checker has no answer-correctness rule, so it passed.
 
 **What we did about it:** added the `catchall_choice` and `level_miscalibrated`
-rules. Re-running the *tightened* checker over the same 30 items now flags **9**:
+rules. Re-running the _tightened_ checker over the same 30 items now flags **9**:
 the 8 miscalibrated L0/L1 vignettes and the 1 catch-all (the same item with the
 wrong key). So the raw accept rate is honest at roughly **21/30 (~70%)** for this
 cluster once the ladder is enforced — that is the real ceiling.
 
 **Conclusion:** AI generation is viable and productive, but **not safe to feed
 `G` unsupervised.** The remaining gaps the mechanical bar still can't close —
-answer *correctness* and true difficulty calibration — are exactly why the
+answer _correctness_ and true difficulty calibration — are exactly why the
 gold-set-gated strategy (and per-concept human sign-off before items drive
 scores) is the right call, and why the calibration harness fits real `b` from
 response data rather than trusting the level prior. Next hardening step: a

@@ -19,6 +19,8 @@
         "ftl/core-repo",
         "ftl/usage",
         "licenses.json",
+        "speedrun/data/*.json",
+        "speedrun/ai/gold/*.json",
         ".dmypy.json",
         "docs-site",
         "target",

@@ -6,7 +6,7 @@ exact files touched, as required by the build rubric.
 ## What it does
 
 Upstream Anki schedules on **recall R** (the FSRS probability you remember a
-card). Speedrun adds **transfer T** — the probability you can solve a *novel*
+card). Speedrun adds **transfer T** — the probability you can solve a _novel_
 problem that requires a concept under changed wording/context — and the
 headline quantity **G = R − T** (the "illusion of mastery" gap).
 
@@ -23,7 +23,7 @@ The engine adds, per **concept** (the AAMC outline node, not a card):
 
 ## Why this belongs in Rust (`rslib`), not Python/JS
 
-1. **One source of truth for desktop *and* mobile.** AnkiDroid and the desktop
+1. **One source of truth for desktop _and_ mobile.** AnkiDroid and the desktop
    GUI both call the same `rslib` backend over protobuf. Implementing T/G in
    Rust means the phone gets the identical engine for free; implementing it in
    PyQt or the TS frontend would not exist on Android at all.

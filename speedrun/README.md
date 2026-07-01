@@ -1,16 +1,18 @@
 # Speedrun (MCAT) — fork of Anki
 
-Speedrun is a fork of [Anki](https://github.com/ankitects/anki) that schedules study on **transfer** (can you *use* a fact on a novel problem) rather than only **recall**. It inherits Anki's FSRS memory engine and adds a per-concept transfer model.
+Speedrun is a fork of [Anki](https://github.com/ankitects/anki) that schedules study on **transfer** (can you _use_ a fact on a novel problem) rather than only **recall**. It inherits Anki's FSRS memory engine and adds a per-concept transfer model.
 
 License: GNU AGPL-3.0-or-later (inherited from Anki). Some Anki components are BSD-3-Clause. This fork preserves all upstream license headers.
 
 ## Core idea (from the Brainlift / PRD)
+
 - **R** = recall probability (from Anki's FSRS).
-- **T** = transfer probability: P(correctly solving a *novel* problem requiring the concept under changed wording/context), modeled per concept via a 1-parameter Elo/IRT update across a difficulty ladder.
+- **T** = transfer probability: P(correctly solving a _novel_ problem requiring the concept under changed wording/context), modeled per concept via a 1-parameter Elo/IRT update across a difficulty ladder.
 - **G = R - T** = the gap ("illusion of mastery"); drives what to study next.
 - Three honest scores: Memory (R), Performance (T), Readiness (472-528), each with a range, coverage %, confidence, reasons, and a give-up rule.
 
 ## This folder (`speedrun/`)
+
 App-specific assets that ship with the fork, kept separate from upstream Anki code:
 
 - `data/concepts.json` — the AAMC content-outline concept map (the coverage backbone). 31 in-scope content categories across Bio/Biochem, Chem/Phys, Psych/Soc (CARS excluded). `exam_weight` is a tunable uniform-within-section prior to be refined against AAMC's published distributions.
@@ -28,6 +30,7 @@ App-specific assets that ship with the fork, kept separate from upstream Anki co
 ## Engine change (Rust, `rslib`) — implemented
 
 A protobuf `SpeedrunService` (see `proto/anki/speedrun.proto`) exposing:
+
 - `UpsertConcept` / `UpsertItem` — load the concept map and items.
 - `RecordTransferReview` — grade a transfer item; updates concept ability via an online Elo/1-PL-IRT step. Transactional and undoable.
 - `MasteryQuery(concept_ids) -> {R, T, G, theta, n_transfer_obs, coverage}` for the dashboard.
@@ -53,4 +56,5 @@ keeps the deck↔concept mapping in standard Anki tags rather than a bespoke
 table, so it survives import/export and sync unchanged.
 
 ## Build
+
 See Anki's docs: `docs/development.md` and `docs/windows.md`. In short, on Windows you need Rust (rustup), MSVC Build Tools + Windows SDK, MSYS2 (`git`, `rsync`) on PATH, and N2/Ninja (`bash tools/install-n2`). Then `.\run` from the repo root.

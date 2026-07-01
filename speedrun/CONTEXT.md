@@ -8,7 +8,7 @@ piece of context for the work.
 
 ## 1. What this is
 
-**Speedrun is an MCAT study app built *within* Anki** — a real fork of the Anki
+**Speedrun is an MCAT study app built _within_ Anki** — a real fork of the Anki
 source that modifies its core (Rust `rslib`, protobuf API, Qt desktop, and the
 Android backend), **not** an add-on or a separate app sitting on top of Anki.
 Running the fork launches Anki itself, rebuilt from modified source, with the
@@ -35,7 +35,7 @@ optimizes **transfer**, not recall. Five SPOVs (see the brainlift doc):
 - **Concept** is the unit (mapped 1:1 to the AAMC content outline), not the card.
 - **R (recall)** = FSRS retrievability, aggregated from cards tagged
   `speedrun::<outline_id>`. Inherited, not rebuilt.
-- **T (transfer)** = probability of solving a *novel* problem needing the concept.
+- **T (transfer)** = probability of solving a _novel_ problem needing the concept.
   Modeled with a 1-PL IRT / Elo update from graded transfer answers.
 - **Ladder L0–L5**: definition → paraphrase → single-concept application → novel
   application → multi-concept reasoning → full passage. T is measured along this
@@ -57,14 +57,14 @@ Two locations:
 
 Inside the fork:
 
-| area | path | what |
-|---|---|---|
-| Rust engine | `rslib/src/speedrun/` | `mod.rs` (T/G/Elo math), `service.rs` (RPCs), `recall.rs` (R from FSRS), `sync.rs`, `undo.rs` |
-| Rust storage | `rslib/src/storage/speedrun/` | `tables.sql` + `mod.rs` (idempotent tables) |
-| API | `proto/anki/speedrun.proto` | `SpeedrunService` RPCs |
-| Desktop UI | `qt/aqt/speedrun.py`, `qt/aqt/transfer_reviewer.py` | Tools ▸ Speedrun Dashboard + Transfer Review |
-| Py tests | `pylib/tests/test_speedrun*.py` | end-to-end backend tests |
-| Module | `speedrun/` | data, AI pipeline, eval harnesses, android kit, scripts, docs |
+| area         | path                                                | what                                                                                          |
+| ------------ | --------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Rust engine  | `rslib/src/speedrun/`                               | `mod.rs` (T/G/Elo math), `service.rs` (RPCs), `recall.rs` (R from FSRS), `sync.rs`, `undo.rs` |
+| Rust storage | `rslib/src/storage/speedrun/`                       | `tables.sql` + `mod.rs` (idempotent tables)                                                   |
+| API          | `proto/anki/speedrun.proto`                         | `SpeedrunService` RPCs                                                                        |
+| Desktop UI   | `qt/aqt/speedrun.py`, `qt/aqt/transfer_reviewer.py` | Tools ▸ Speedrun Dashboard + Transfer Review                                                  |
+| Py tests     | `pylib/tests/test_speedrun*.py`                     | end-to-end backend tests                                                                      |
+| Module       | `speedrun/`                                         | data, AI pipeline, eval harnesses, android kit, scripts, docs                                 |
 
 The `speedrun/` module:
 
@@ -118,6 +118,7 @@ Note: Python harnesses import the built pylib from `out/pylib`, so build the for
 ## 7. Status (as of latest commit `a857338`)
 
 **Done (built, tested, committed on `speedrun`):**
+
 - Phase 0 env; Phase 1 fork builds + `build_flavor()` + `.version` = `26.05-speedrun`
 - Phase 2 engine (T, G, Elo, mastery query, transfer-gap queue) + undo wiring
 - Phase 3 content (concept map, L0–L5 seed items, importer)
@@ -128,6 +129,7 @@ Note: Python harnesses import the built pylib from `out/pylib`, so build the for
 - Phase 5 **prep**: turn-key Android build kit (needs a device to execute)
 
 **Remaining (needs a machine/device/data — not codeable headless):**
+
 - Android on-device: install Android Studio + NDK `29.0.14206865` + SDK 36, run
   `speedrun/android/build_speedrun_backend.ps1`, wire AnkiDroid `local_backend=true`,
   run on emulator/phone, import MileDown, **screen-record** a review (shared-engine proof).
@@ -152,8 +154,9 @@ The brainlift reviewer praised R/T/G and SPOV 3 (anchoring on machine-graded T; 
 glucagon/blood-glucose cluster** live. Finding = the quality ceiling: content
 accurate, but the model **flattened the difficulty ladder** (vignettes at every
 rung) and **mis-keyed one "all of the above" answer**. Fix: added `catchall_choice`
-+ `level_miscalibrated` checker rules (tightened checker now flags 9/30, ~70% real
-accept rate) and added **SPOV 5**. See `AI.md` for the full writeup.
+
+- `level_miscalibrated` checker rules (tightened checker now flags 9/30, ~70% real
+  accept rate) and added **SPOV 5**. See `AI.md` for the full writeup.
 
 ## 10. Conventions & gotchas
 

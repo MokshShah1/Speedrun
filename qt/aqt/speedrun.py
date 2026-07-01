@@ -44,10 +44,10 @@ def _report_html(report) -> str:
     for s in report.sections:
         sections_rows += (
             f"<tr><td>{s.section}</td>"
-            f"<td style='text-align:right;'>{s.memory*100:.0f}%</td>"
-            f"<td style='text-align:right;'>{s.performance*100:.0f}%</td>"
+            f"<td style='text-align:right;'>{s.memory * 100:.0f}%</td>"
+            f"<td style='text-align:right;'>{s.performance * 100:.0f}%</td>"
             f"<td style='text-align:right;'>{s.score} ({s.score_low}-{s.score_high})</td>"
-            f"<td style='text-align:right;'>{s.coverage*100:.0f}%</td></tr>"
+            f"<td style='text-align:right;'>{s.coverage * 100:.0f}%</td></tr>"
         )
     reasons = "".join(f"<li>{r}</li>" for r in report.reasons)
     give_up = (
@@ -63,10 +63,10 @@ def _report_html(report) -> str:
         <span style="color:#666;font-size:16px;">
           ({report.readiness_low}-{report.readiness_high}, 472-528 scale)
         </span></h1>
-      <p style="color:#666;margin-top:4px;">Coverage {report.coverage*100:.0f}%
+      <p style="color:#666;margin-top:4px;">Coverage {report.coverage * 100:.0f}%
          of the exam has transfer data. Readiness is built on transfer, not recall.</p>
-      {_bar("Memory (recall R)", mem, f"{mem*100:.0f}% - what you can remember")}
-      {_bar("Performance (transfer T)", perf, f"{perf*100:.0f}% - what you can actually use")}
+      {_bar("Memory (recall R)", mem, f"{mem * 100:.0f}% - what you can remember")}
+      {_bar("Performance (transfer T)", perf, f"{perf * 100:.0f}% - what you can actually use")}
       <h3>By section</h3>
       <table cellpadding="6" style="border-collapse:collapse;width:100%;">
         <tr style="border-bottom:1px solid #ccc;text-align:left;">

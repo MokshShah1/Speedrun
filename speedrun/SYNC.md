@@ -2,10 +2,10 @@
 
 Speedrun has to sync two kinds of data between devices (phone ↔ desktop):
 
-| Data | What carries it | Mechanism |
-|---|---|---|
+| Data                                              | What carries it                    | Mechanism                                                        |
+| ------------------------------------------------- | ---------------------------------- | ---------------------------------------------------------------- |
 | Cards, notes, revlog (so **R**/FSRS memory state) | Anki's standard collection objects | **Anki's built-in self-hosted sync server** (unchanged upstream) |
-| Transfer reviews (so **T**/the gap **G**) | Speedrun's `transfer_review` table | **append-only log sync** added in this fork |
+| Transfer reviews (so **T**/the gap **G**)         | Speedrun's `transfer_review` table | **append-only log sync** added in this fork                      |
 
 The first is free: FSRS state lives in standard Anki tables, so it rides Anki's
 existing sync. The engineering is the second, because the Speedrun tables are
@@ -32,7 +32,7 @@ It is a pure replay of that concept's transfer reviews. So we never sync the
 derived state — we sync the **append-only review log** and recompute.
 
 - **Identity:** every review carries a globally-unique `guid` (Anki's base91
-  random id). The device-local integer `id` is *not* synced; imported reviews
+  random id). The device-local integer `id` is _not_ synced; imported reviews
   get fresh local ids. Two devices can both mint `id = 1` without colliding.
 - **Merge = union on `guid`.** Importing a peer's log inserts only the guids you
   do not already have. This is why **10 reviews here + 10 there = 20 after sync,
@@ -43,7 +43,7 @@ derived state — we sync the **append-only review log** and recompute.
   so they converge to exactly the same `theta` even though Elo updates are
   order-dependent. There is no conflict resolution because there are no
   conflicts — only a deterministic replay of a shared, ordered, append-only log.
-- **No incremental drift.** The live record path *also* derives `theta` by
+- **No incremental drift.** The live record path _also_ derives `theta` by
   replaying the log (not a one-step update), so a device shows the same score
   before and after its first sync.
 
