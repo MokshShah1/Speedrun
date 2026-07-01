@@ -1,0 +1,482 @@
+[
+  {
+    "stem": "A patient recently diagnosed with type 1 diabetes presents with consistently high blood glucose levels. Which of the following mechanisms explains why their blood glucose remains elevated?",
+    "choices": [
+      "Increased insulin secretion from pancreatic beta cells.",
+      "Decreased glucagon secretion from pancreatic alpha cells.",
+      "Unopposed glucagon action due to the absence of insulin.",
+      "Enhanced glycogenesis in the liver and muscles."
+    ],
+    "answer": 2,
+    "explanation": "In type 1 diabetes, the loss of beta cells results in a lack of insulin, which normally helps lower blood glucose levels. Without insulin, glucagon's action is unopposed, leading to elevated blood glucose levels.",
+    "level": 0,
+    "b": -1.5,
+    "ai_generated": true,
+    "concept_id": 4,
+    "source_ref": "MileDown Biochem: Hormonal regulation of metabolism"
+  },
+  {
+    "stem": "During a prolonged period of fasting, which of the following hormonal actions is primarily responsible for increasing blood glucose levels?",
+    "choices": [
+      "Insulin stimulating glucose uptake in adipose tissue.",
+      "Glucagon promoting glycogenolysis and gluconeogenesis.",
+      "Insulin inhibiting gluconeogenesis in the liver.",
+      "Glucagon enhancing lipogenesis in the liver."
+    ],
+    "answer": 1,
+    "explanation": "During fasting, glucagon is released to stimulate glycogenolysis and gluconeogenesis, both of which serve to increase blood glucose levels.",
+    "level": 0,
+    "b": -1.5,
+    "ai_generated": true,
+    "concept_id": 4,
+    "source_ref": "MileDown Biochem: Hormonal regulation of metabolism"
+  },
+  {
+    "stem": "A researcher is studying the effects of insulin and glucagon on glucose metabolism. If insulin levels are elevated after a meal, which of the following physiological effects is expected?",
+    "choices": [
+      "Increased gluconeogenesis in the liver.",
+      "Decreased glucose uptake by skeletal muscle.",
+      "Increased glycogenesis in liver and muscle tissues.",
+      "Decreased lipogenesis in adipose tissue."
+    ],
+    "answer": 2,
+    "explanation": "Elevated insulin levels after a meal promote glucose uptake and storage, leading to increased glycogenesis in the liver and muscle tissues.",
+    "level": 0,
+    "b": -1.5,
+    "ai_generated": true,
+    "concept_id": 4,
+    "source_ref": "MileDown Biochem: Hormonal regulation of metabolism"
+  },
+  {
+    "stem": "An individual is undergoing intense exercise, leading to a drop in blood glucose. Which hormonal response is most likely to occur?",
+    "choices": [
+      "Increased insulin secretion from the pancreas.",
+      "Decreased glucagon levels in circulation.",
+      "Increased glucagon secretion to raise blood glucose.",
+      "Decreased glycogenolysis in the liver."
+    ],
+    "answer": 2,
+    "explanation": "During intense exercise, blood glucose levels drop, prompting an increase in glucagon secretion to stimulate glycogenolysis and raise blood glucose levels.",
+    "level": 0,
+    "b": -1.5,
+    "ai_generated": true,
+    "concept_id": 4,
+    "source_ref": "MileDown Biochem: Hormonal regulation of metabolism"
+  },
+  {
+    "stem": "A patient presents with symptoms of hypoglycemia due to excessive insulin administration. Which of the following compensatory mechanisms is likely to be activated to restore blood glucose levels?",
+    "choices": [
+      "Inhibition of gluconeogenesis.",
+      "Stimulation of glycogenolysis by glucagon.",
+      "Increased insulin-to-glucagon ratio.",
+      "Enhanced glucose uptake in muscle tissue."
+    ],
+    "answer": 1,
+    "explanation": "In response to low blood glucose levels caused by excessive insulin, the body will activate glucagon to stimulate glycogenolysis, helping to raise blood glucose levels.",
+    "level": 0,
+    "b": -1.5,
+    "ai_generated": true,
+    "concept_id": 4,
+    "source_ref": "MileDown Biochem: Hormonal regulation of metabolism"
+  },
+  {
+    "stem": "A patient recently diagnosed with type 1 diabetes has trouble managing their blood glucose levels. After a high-carb meal, which response is primarily impaired due to the lack of one of the hormones?",
+    "choices": [
+      "Increased glycogenolysis in the liver",
+      "Increased glucose uptake in muscle and fat cells",
+      "Decreased gluconeogenesis in the liver",
+      "Increased lipolysis in adipose tissue"
+    ],
+    "answer": 1,
+    "explanation": "In type 1 diabetes, the lack of insulin impairs the ability of muscle and fat cells to take up glucose, which is normally promoted by insulin.",
+    "level": 1,
+    "b": -0.9,
+    "ai_generated": true,
+    "concept_id": 4,
+    "source_ref": "MileDown Biochem: Hormonal regulation of metabolism"
+  },
+  {
+    "stem": "During a prolonged fast, which hormone would dominate in the bloodstream, and what effect would it have on liver function?",
+    "choices": [
+      "Insulin, promoting glycogen synthesis",
+      "Insulin, promoting gluconeogenesis",
+      "Glucagon, stimulating glycogenolysis",
+      "Glucagon, inhibiting gluconeogenesis"
+    ],
+    "answer": 2,
+    "explanation": "During fasting, glucagon levels rise, stimulating glycogenolysis in the liver to increase blood glucose levels.",
+    "level": 1,
+    "b": -0.9,
+    "ai_generated": true,
+    "concept_id": 4,
+    "source_ref": "MileDown Biochem: Hormonal regulation of metabolism"
+  },
+  {
+    "stem": "An athlete is undergoing intense physical activity, which is causing low blood glucose levels. What hormonal response would you expect from the pancreas to stabilize glucose levels?",
+    "choices": [
+      "Increased insulin secretion",
+      "Decreased glucagon secretion",
+      "Increased glucagon secretion",
+      "Decreased insulin secretion"
+    ],
+    "answer": 2,
+    "explanation": "During intense exercise, glucagon secretion increases to stimulate glucose production and release from glycogen stores to raise blood glucose levels.",
+    "level": 1,
+    "b": -0.9,
+    "ai_generated": true,
+    "concept_id": 4,
+    "source_ref": "MileDown Biochem: Hormonal regulation of metabolism"
+  },
+  {
+    "stem": "A patient is experiencing symptoms of hypoglycemia after skipping meals. Which of the following mechanisms would be activated to counteract this condition?",
+    "choices": [
+      "Increased insulin secretion",
+      "Increased glycogenolysis and gluconeogenesis",
+      "Decreased glucagon secretion",
+      "Increased glucose uptake by tissues"
+    ],
+    "answer": 1,
+    "explanation": "To counteract hypoglycemia, the body would increase glycogenolysis and gluconeogenesis, primarily through glucagon action, to raise blood glucose levels.",
+    "level": 1,
+    "b": -0.9,
+    "ai_generated": true,
+    "concept_id": 4,
+    "source_ref": "MileDown Biochem: Hormonal regulation of metabolism"
+  },
+  {
+    "stem": "A researcher is studying the effects of epinephrine on glucose metabolism. What role does epinephrine play in relation to glucagon during stress?",
+    "choices": [
+      "It inhibits glucagon action to lower blood sugar",
+      "It mimics insulin action to promote glucose storage",
+      "It enhances glucagon\u2019s stimulatory effects on glucose release",
+      "It has no effect on glucagon during stress"
+    ],
+    "answer": 2,
+    "explanation": "Epinephrine enhances the effects of glucagon, promoting glucose release from the liver during acute stress situations.",
+    "level": 1,
+    "b": -0.9,
+    "ai_generated": true,
+    "concept_id": 4,
+    "source_ref": "MileDown Biochem: Hormonal regulation of metabolism"
+  },
+  {
+    "stem": "A patient has not eaten for several hours and is experiencing symptoms of hypoglycemia. Which of the following hormonal responses would most likely occur to increase blood glucose levels?",
+    "choices": [
+      "Increased insulin secretion from beta cells",
+      "Decreased glucagon secretion from alpha cells",
+      "Increased glucagon secretion from alpha cells",
+      "Decreased insulin secretion from beta cells"
+    ],
+    "answer": 2,
+    "explanation": "During fasting, glucagon is secreted to raise blood glucose levels by stimulating glycogenolysis and gluconeogenesis. Insulin secretion decreases to prevent further lowering of blood glucose.",
+    "level": 2,
+    "b": -0.2,
+    "ai_generated": true,
+    "concept_id": 4,
+    "source_ref": "MileDown Biochem: Hormonal regulation of metabolism"
+  },
+  {
+    "stem": "After a high-carbohydrate meal, a patient\u2019s blood glucose levels rise significantly. What is the primary hormonal action that occurs in response to this increase?",
+    "choices": [
+      "Stimulation of glycogenolysis",
+      "Promotion of lipogenesis",
+      "Inhibition of gluconeogenesis",
+      "All of the above"
+    ],
+    "answer": 3,
+    "explanation": "After a meal, insulin is released to lower blood glucose levels by promoting glucose uptake, stimulating glycogenesis, promoting lipogenesis, and inhibiting gluconeogenesis.",
+    "level": 2,
+    "b": -0.2,
+    "ai_generated": true,
+    "concept_id": 4,
+    "source_ref": "MileDown Biochem: Hormonal regulation of metabolism"
+  },
+  {
+    "stem": "In a scenario where a person is under acute stress and experiences a rise in blood glucose levels, what role does epinephrine play in conjunction with glucagon?",
+    "choices": [
+      "Epinephrine inhibits glucagon secretion to lower blood sugar",
+      "Epinephrine enhances glucagon's effects to increase blood sugar",
+      "Epinephrine has no effect on glucagon",
+      "Epinephrine increases insulin secretion to lower blood sugar"
+    ],
+    "answer": 1,
+    "explanation": "Epinephrine reinforces glucagon's effects to increase blood glucose levels during acute stress, by promoting glycogenolysis and gluconeogenesis.",
+    "level": 2,
+    "b": -0.2,
+    "ai_generated": true,
+    "concept_id": 4,
+    "source_ref": "MileDown Biochem: Hormonal regulation of metabolism"
+  },
+  {
+    "stem": "A patient with type 1 diabetes has lost the ability to produce insulin. What is the likely physiological effect on glucagon levels and blood glucose?",
+    "choices": [
+      "Glucagon levels decrease and blood glucose levels decrease",
+      "Glucagon levels increase and blood glucose levels increase",
+      "Glucagon levels decrease and blood glucose levels increase",
+      "Glucagon levels remain unchanged and blood glucose levels decrease"
+    ],
+    "answer": 1,
+    "explanation": "In type 1 diabetes, the absence of insulin leads to unopposed glucagon secretion, resulting in elevated blood glucose levels.",
+    "level": 2,
+    "b": -0.2,
+    "ai_generated": true,
+    "concept_id": 4,
+    "source_ref": "MileDown Biochem: Hormonal regulation of metabolism"
+  },
+  {
+    "stem": "During a period of intense exercise, how does the body's hormonal response change to maintain blood glucose levels?",
+    "choices": [
+      "Increased insulin secretion to promote glucose uptake",
+      "Decreased glucagon secretion to conserve glucose",
+      "Increased glucagon secretion to release glucose into the blood",
+      "Increased insulin-to-glucagon ratio to promote storage"
+    ],
+    "answer": 2,
+    "explanation": "During intense exercise, glucagon secretion increases to stimulate glycogen breakdown and gluconeogenesis, raising blood glucose levels to meet energy demands.",
+    "level": 2,
+    "b": -0.2,
+    "ai_generated": true,
+    "concept_id": 4,
+    "source_ref": "MileDown Biochem: Hormonal regulation of metabolism"
+  },
+  {
+    "stem": "A patient with type 1 diabetes has been experiencing high blood glucose levels due to a lack of insulin. If the patient engages in intense physical exercise, what physiological change would you expect to occur in the regulation of their blood glucose levels?",
+    "choices": [
+      "Increased insulin secretion from beta cells",
+      "Increased glucagon secretion from alpha cells",
+      "Decreased glucose uptake by skeletal muscle",
+      "Decreased glycogenolysis in the liver"
+    ],
+    "answer": 1,
+    "explanation": "During intense physical exercise, the body requires more glucose for energy. In a patient with type 1 diabetes, the lack of insulin means glucose cannot enter tissues effectively, leading to an increased secretion of glucagon to raise blood glucose through glycogenolysis.",
+    "level": 3,
+    "b": 0.5,
+    "ai_generated": true,
+    "concept_id": 4,
+    "source_ref": "MileDown Biochem: Hormonal regulation of metabolism"
+  },
+  {
+    "stem": "A researcher is studying the effects of a new drug that enhances the action of glucagon. In a fasting state, what would be the expected outcome of this drug on blood glucose levels?",
+    "choices": [
+      "Increased blood glucose due to enhanced glycogenolysis",
+      "Decreased blood glucose due to increased insulin secretion",
+      "No change in blood glucose as glucagon remains constant",
+      "Increased insulin resistance in peripheral tissues"
+    ],
+    "answer": 0,
+    "explanation": "The new drug enhancing glucagon action would stimulate glycogenolysis and gluconeogenesis, leading to increased blood glucose levels, especially in a fasting state where glucagon is already elevated.",
+    "level": 3,
+    "b": 0.5,
+    "ai_generated": true,
+    "concept_id": 4,
+    "source_ref": "MileDown Biochem: Hormonal regulation of metabolism"
+  },
+  {
+    "stem": "A patient presents with symptoms of hypoglycemia after taking their insulin medication. Which of the following hormonal changes would most likely occur in response to this hypoglycemic state?",
+    "choices": [
+      "Decreased glucagon secretion",
+      "Increased insulin-to-glucagon ratio",
+      "Increased glucagon secretion",
+      "Decreased epinephrine production"
+    ],
+    "answer": 2,
+    "explanation": "In response to hypoglycemia, glucagon secretion would increase to raise blood glucose levels by promoting glycogenolysis and gluconeogenesis, countering the effects of insulin.",
+    "level": 3,
+    "b": 0.5,
+    "ai_generated": true,
+    "concept_id": 4,
+    "source_ref": "MileDown Biochem: Hormonal regulation of metabolism"
+  },
+  {
+    "stem": "An individual consumes a large meal high in carbohydrates. After the meal, which of the following best describes the expected hormonal changes in this individual?",
+    "choices": [
+      "Increased glucagon and decreased insulin",
+      "Increased insulin and decreased glucagon",
+      "Equal levels of insulin and glucagon",
+      "Increased glucagon with no change in insulin"
+    ],
+    "answer": 1,
+    "explanation": "After a large carbohydrate meal, blood glucose levels rise, leading to increased insulin secretion to facilitate glucose uptake and storage, while glucagon levels decrease due to the high insulin-to-glucagon ratio.",
+    "level": 3,
+    "b": 0.5,
+    "ai_generated": true,
+    "concept_id": 4,
+    "source_ref": "MileDown Biochem: Hormonal regulation of metabolism"
+  },
+  {
+    "stem": "A student is studying the metabolic effects of both insulin and glucagon. If a patient has a genetic mutation that causes hyperactivity of their insulin receptor, what metabolic consequence might you expect?",
+    "choices": [
+      "Increased gluconeogenesis in the liver",
+      "Decreased glucose uptake by muscles",
+      "Increased glycogen synthesis in the liver",
+      "Decreased lipogenesis in adipose tissue"
+    ],
+    "answer": 2,
+    "explanation": "A hyperactive insulin receptor would enhance the effects of insulin, leading to increased glycogen synthesis in the liver as glucose is stored rather than released, thereby promoting an anabolic state.",
+    "level": 3,
+    "b": 0.5,
+    "ai_generated": true,
+    "concept_id": 4,
+    "source_ref": "MileDown Biochem: Hormonal regulation of metabolism"
+  },
+  {
+    "stem": "A patient with type 1 diabetes experiences a severe drop in blood glucose levels after exercising. Which of the following hormonal responses is expected to occur to counteract this drop?",
+    "choices": [
+      "Increased insulin secretion",
+      "Decreased glucagon secretion",
+      "Increased glucagon secretion",
+      "Decreased epinephrine secretion"
+    ],
+    "answer": 2,
+    "explanation": "In type 1 diabetes, the lack of insulin leads to hyperglycemia; however, during exercise, if blood glucose drops, the glucagon response is crucial for increasing blood glucose levels. Thus, increased glucagon secretion is expected.",
+    "level": 4,
+    "b": 1.0,
+    "ai_generated": true,
+    "concept_id": 4,
+    "source_ref": "MileDown Biochem: Hormonal regulation of metabolism"
+  },
+  {
+    "stem": "During a fasting state, a patient's blood glucose level is measured at 65 mg/dL. Which hormone will primarily act to restore blood glucose levels to normal, and what mechanism does it primarily employ?",
+    "choices": [
+      "Insulin; promotes glycolysis",
+      "Glucagon; stimulates glycogenolysis",
+      "Insulin; enhances gluconeogenesis",
+      "Glucagon; inhibits gluconeogenesis"
+    ],
+    "answer": 1,
+    "explanation": "During fasting, blood glucose levels drop, leading to glucagon secretion, which primarily stimulates glycogenolysis to raise glucose levels.",
+    "level": 4,
+    "b": 1.0,
+    "ai_generated": true,
+    "concept_id": 4,
+    "source_ref": "MileDown Biochem: Hormonal regulation of metabolism"
+  },
+  {
+    "stem": "A researcher is studying the effects of glucagon on hepatic glucose production. If glucagon is administered to a subject, which of the following processes is most likely to be activated in the liver?",
+    "choices": [
+      "Glycogenesis",
+      "Gluconeogenesis",
+      "Lipogenesis",
+      "Glycogen synthesis"
+    ],
+    "answer": 1,
+    "explanation": "Glucagon is a catabolic hormone that promotes gluconeogenesis and glycogenolysis in the liver to increase blood glucose levels.",
+    "level": 4,
+    "b": 1.0,
+    "ai_generated": true,
+    "concept_id": 4,
+    "source_ref": "MileDown Biochem: Hormonal regulation of metabolism"
+  },
+  {
+    "stem": "A person eats a carbohydrate-rich meal, resulting in elevated blood glucose levels. What is the primary hormone secreted in response, and what is its main effect on muscle tissue?",
+    "choices": [
+      "Glucagon; stimulates lipolysis",
+      "Insulin; promotes glucose uptake",
+      "Glucagon; enhances protein synthesis",
+      "Insulin; inhibits glycogenolysis"
+    ],
+    "answer": 1,
+    "explanation": "After a carbohydrate-rich meal, insulin is secreted to promote glucose uptake into muscle tissue, facilitating storage and use of glucose.",
+    "level": 4,
+    "b": 1.0,
+    "ai_generated": true,
+    "concept_id": 4,
+    "source_ref": "MileDown Biochem: Hormonal regulation of metabolism"
+  },
+  {
+    "stem": "A patient presents with symptoms of hypoglycemia. If their insulin levels are normal but glucagon levels are abnormally low, which of the following best describes the physiological impact on their blood glucose levels?",
+    "choices": [
+      "Increased gluconeogenesis",
+      "Decreased glycogenolysis",
+      "Increased lipolysis",
+      "Decreased blood glucose"
+    ],
+    "answer": 1,
+    "explanation": "Low glucagon levels impair the ability to mobilize glucose from glycogen stores due to decreased glycogenolysis, which can exacerbate hypoglycemia.",
+    "level": 4,
+    "b": 1.0,
+    "ai_generated": true,
+    "concept_id": 4,
+    "source_ref": "MileDown Biochem: Hormonal regulation of metabolism"
+  },
+  {
+    "stem": "A patient presents with hypoglycemia after prolonged fasting. What would be the expected effect of glucagon in this scenario?",
+    "choices": [
+      "Increased glucose uptake into muscle cells",
+      "Increased glycogen breakdown in the liver",
+      "Inhibition of gluconeogenesis",
+      "Increased lipogenesis in adipose tissue"
+    ],
+    "answer": 1,
+    "explanation": "Glucagon is released during low blood glucose levels to stimulate glycogenolysis (breaking down glycogen) in the liver, thereby increasing blood glucose levels.",
+    "level": 5,
+    "b": 1.6,
+    "ai_generated": true,
+    "concept_id": 4,
+    "source_ref": "MileDown Biochem: Hormonal regulation of metabolism"
+  },
+  {
+    "stem": "A researcher is studying the effects of insulin on glucose metabolism. If insulin secretion is inhibited, what would likely occur in the body?",
+    "choices": [
+      "Decreased blood glucose levels due to enhanced glucose uptake",
+      "Increased gluconeogenesis in the liver",
+      "Reduced lipolysis in adipose tissue",
+      "Decreased glycogenolysis in the liver"
+    ],
+    "answer": 1,
+    "explanation": "Inhibition of insulin leads to reduced glucose uptake and increased gluconeogenesis in the liver, raising blood glucose levels.",
+    "level": 5,
+    "b": 1.6,
+    "ai_generated": true,
+    "concept_id": 4,
+    "source_ref": "MileDown Biochem: Hormonal regulation of metabolism"
+  },
+  {
+    "stem": "During a stressful situation, epinephrine is released alongside glucagon. What is the likely physiological outcome of this combined action?",
+    "choices": [
+      "Decreased blood glucose levels due to increased insulin action",
+      "Increased blood glucose levels due to enhanced glycogenolysis and gluconeogenesis",
+      "Inhibition of both glycogen breakdown and glucose synthesis",
+      "Increased lipogenesis and protein synthesis"
+    ],
+    "answer": 1,
+    "explanation": "Epinephrine enhances glucagon's effects during stress, leading to increased glycogenolysis and gluconeogenesis, thereby raising blood glucose levels.",
+    "level": 5,
+    "b": 1.6,
+    "ai_generated": true,
+    "concept_id": 4,
+    "source_ref": "MileDown Biochem: Hormonal regulation of metabolism"
+  },
+  {
+    "stem": "A patient with type 1 diabetes has elevated blood glucose levels. Which hormonal imbalance is most likely responsible for this condition?",
+    "choices": [
+      "Excess glucagon due to insufficient insulin",
+      "Excess insulin due to insufficient glucagon",
+      "Balanced insulin and glucagon levels",
+      "Increased insulin sensitivity"
+    ],
+    "answer": 0,
+    "explanation": "In type 1 diabetes, the loss of insulin secretion means that glucagon's action is unopposed, leading to elevated blood glucose levels.",
+    "level": 5,
+    "b": 1.6,
+    "ai_generated": true,
+    "concept_id": 4,
+    "source_ref": "MileDown Biochem: Hormonal regulation of metabolism"
+  },
+  {
+    "stem": "If a person consumes a high-carbohydrate meal, what immediate change would you expect in their insulin-to-glucagon ratio?",
+    "choices": [
+      "It would decrease significantly",
+      "It would remain unchanged",
+      "It would increase significantly",
+      "It would fluctuate unpredictably"
+    ],
+    "answer": 2,
+    "explanation": "After a high-carbohydrate meal, insulin secretion increases significantly to lower blood glucose levels, resulting in a higher insulin-to-glucagon ratio.",
+    "level": 5,
+    "b": 1.6,
+    "ai_generated": true,
+    "concept_id": 4,
+    "source_ref": "MileDown Biochem: Hormonal regulation of metabolism"
+  }
+]

@@ -16,6 +16,22 @@ MIN_STEM_LEN = 15
 MIN_CHOICES = 3
 MIN_CHOICE_LEN = 1
 
+# AAMC items essentially never use these; they also hide answer-key errors
+# (see the glucagon L2 defect where "all of the above" bundled a wrong option).
+CATCHALL_RE = re.compile(r"\b(all|none) of the above\b", re.IGNORECASE)
+
+# Level-appropriateness. L0 (definition) and L1 (paraphrase) must be crisp recall,
+# not scenario questions. A clinical vignette at L0/L1 means the item is really an
+# application item mislabelled to a low rung - which flattens the difficulty ladder
+# that G = R - T depends on. This is a heuristic proxy for a proper difficulty
+# estimate (the calibration harness fits the real b from response data).
+VIGNETTE_RE = re.compile(
+    r"\b(a|an)\s+(patient|researcher|individual|athlete|student|person|subject|"
+    r"scientist|woman|man|child)\b|\bpresents with\b|\bis studying\b|\bis undergoing\b",
+    re.IGNORECASE,
+)
+MAX_LOW_LEVEL_WORDS = 28
+
 
 def _norm(text: str) -> str:
     return re.sub(r"[^a-z0-9 ]", " ", text.lower()).strip()
@@ -54,6 +70,14 @@ def check_item(item: dict, concept_title: str = "", source_text: str = "") -> li
 
     if not explanation:
         fails.append("missing_explanation")
+
+    if any(CATCHALL_RE.search(c or "") for c in choices):
+        fails.append("catchall_choice")
+
+    level = item.get("level")
+    if isinstance(level, int) and level <= 1:
+        if VIGNETTE_RE.search(stem) or len(stem.split()) > MAX_LOW_LEVEL_WORDS:
+            fails.append("level_miscalibrated")
 
     # Grounding: the item must share real vocabulary with the concept/source.
     context_tokens = _tokens(concept_title) | _tokens(source_text)

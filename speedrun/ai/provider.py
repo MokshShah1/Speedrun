@@ -159,12 +159,31 @@ class OpenAIProvider:
             temperature=0.7,
         )
         raw = json.loads(resp.choices[0].message.content or "{}")
-        rows = raw if isinstance(raw, list) else raw.get("items", [])
+        rows = _extract_rows(raw)
         for r in rows:
             r.setdefault("level", level)
             r.setdefault("b", LEVEL_DIFFICULTY.get(level, 0.0))
             r["ai_generated"] = True
         return rows
+
+
+def _extract_rows(raw: object) -> list[dict]:
+    """Pull the item list out of whatever shape the model returned.
+
+    JSON-object mode forces a top-level object, so the list of items can land
+    under any key (``items``, ``questions``, ``data``, ...). Accept a bare list,
+    a known key, or the first list-of-dicts value we find."""
+    if isinstance(raw, list):
+        return [r for r in raw if isinstance(r, dict)]
+    if isinstance(raw, dict):
+        for key in ("items", "questions", "transfer_items", "data", "results"):
+            val = raw.get(key)
+            if isinstance(val, list):
+                return [r for r in val if isinstance(r, dict)]
+        for val in raw.values():
+            if isinstance(val, list) and val and isinstance(val[0], dict):
+                return [r for r in val if isinstance(r, dict)]
+    return []
 
 
 def get_provider(name: str | None = None) -> Provider:

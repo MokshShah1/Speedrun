@@ -61,6 +61,34 @@ def test_checker_rejects_specific_defects():
     assert "missing_explanation" in checker.check_item(no_expl, CONCEPT, SOURCE)
 
 
+def test_checker_rejects_catchall_and_miscalibrated_level():
+    # "All of the above" is banned (it hides answer-key errors, as the live
+    # glucagon L2 item showed).
+    catchall = {
+        "stem": "After a meal, which insulin effects occur in the liver and muscle?",
+        "choices": ["Glycogenesis", "Lipogenesis", "Reduced gluconeogenesis", "All of the above"],
+        "answer": 3,
+        "explanation": "Insulin is anabolic.",
+    }
+    assert "catchall_choice" in checker.check_item(catchall, CONCEPT, SOURCE)
+
+    # A clinical vignette at L0/L1 is really an application item on the wrong rung;
+    # it flattens the ladder G depends on, so it must be flagged.
+    vignette_l0 = {
+        "stem": ("A patient recently diagnosed with type 1 diabetes presents with "
+                 "high blood glucose. Which mechanism explains why it stays elevated?"),
+        "choices": ["Unopposed glucagon", "More insulin", "More GLUT4", "Glycogenesis"],
+        "answer": 0,
+        "explanation": "No insulin leaves glucagon unopposed.",
+        "level": 0,
+    }
+    assert "level_miscalibrated" in checker.check_item(vignette_l0, CONCEPT, SOURCE)
+
+    # The same item at L3 (application) is fine on that rung.
+    vignette_l3 = {**vignette_l0, "level": 3}
+    assert "level_miscalibrated" not in checker.check_item(vignette_l3, CONCEPT, SOURCE)
+
+
 def test_leakage_flags_source_copy_and_duplicates():
     copied = {"stem": "The Henderson-Hasselbalch equation relates pH, pKa, and the ratio of conjugate base"}
     assert "copies_source" in leakage.scan(copied, SOURCE, [])

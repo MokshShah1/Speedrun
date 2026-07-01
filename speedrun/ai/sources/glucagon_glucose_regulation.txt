@@ -1,0 +1,33 @@
+Hormonal regulation of blood glucose (insulin and glucagon)
+
+Blood glucose is held in a narrow range (about 70-110 mg/dL when fasting) by two
+opposing pancreatic hormones secreted by the islets of Langerhans. Beta cells
+secrete insulin; alpha cells secrete glucagon. The two form a negative-feedback
+loop around a set point.
+
+Insulin is released when blood glucose is high (for example after a meal). It is
+an anabolic, glucose-lowering signal. It promotes glucose uptake into skeletal
+muscle and adipose tissue by triggering translocation of GLUT4 transporters to
+the cell membrane, stimulates glycogenesis (glucose stored as glycogen in liver
+and muscle), promotes lipogenesis, and suppresses gluconeogenesis. The net effect
+is to move glucose out of the blood and into storage.
+
+Glucagon is released when blood glucose is low (for example during fasting or
+exercise). It is a catabolic, glucose-raising signal that acts mainly on the
+liver. It stimulates glycogenolysis (breakdown of stored glycogen to release
+glucose) and gluconeogenesis (synthesis of new glucose from lactate, glycerol,
+and glucogenic amino acids). The net effect is to raise blood glucose.
+
+Mechanism: glucagon binds a Gs-protein-coupled receptor on hepatocytes, which
+activates adenylate cyclase, raising cyclic AMP (cAMP), which activates protein
+kinase A (PKA). PKA phosphorylates target enzymes, activating glycogen
+phosphorylase (favoring glycogen breakdown) and inhibiting glycogen synthase.
+Insulin signaling opposes this through a receptor tyrosine kinase cascade.
+
+Because the two hormones oppose each other around a set point, what matters
+physiologically is often the insulin-to-glucagon ratio rather than either level
+alone: a high ratio after a meal favors storage, a low ratio during fasting
+favors mobilization. Epinephrine reinforces glucagon's effects during acute
+stress ("fight or flight"). In type 1 diabetes the loss of beta cells removes
+insulin, so glucose cannot be cleared and the counter-regulatory glucagon signal
+is left unopposed, driving hyperglycemia.
