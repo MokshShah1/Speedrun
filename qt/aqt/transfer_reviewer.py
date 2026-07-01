@@ -11,7 +11,7 @@ shows the explanation and advances. This is the item half of the Wednesday
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any
 
 from aqt.qt import (
     QAction,
@@ -19,8 +19,8 @@ from aqt.qt import (
     QFrame,
     QLabel,
     QPushButton,
-    QVBoxLayout,
     Qt,
+    QVBoxLayout,
     QWidget,
     qconnect,
 )
@@ -37,7 +37,7 @@ class TransferReviewer(QWidget):
         self.setWindowTitle("Speedrun - Transfer Review")
         self.resize(620, 480)
         self._layout = QVBoxLayout(self)
-        self.current = None  # type: Optional[object]
+        self.current: Any = None  # the pb.Item being shown, or None
         self.answered = False
         self.load_next()
 
@@ -53,12 +53,20 @@ class TransferReviewer(QWidget):
         self.answered = False
         resp = self.mw.col._backend.next_transfer_item(concept_id=0)
         if not resp.found:
-            self._layout.addWidget(QLabel("No transfer items available. Import a deck first."))
+            self._layout.addWidget(
+                QLabel("No transfer items available. Import a deck first.")
+            )
             return
         self.current = resp.item
 
-        ladder = ["L0 definition", "L1 paraphrase", "L2 single-concept",
-                  "L3 novel application", "L4 multi-concept", "L5 full passage"]
+        ladder = [
+            "L0 definition",
+            "L1 paraphrase",
+            "L2 single-concept",
+            "L3 novel application",
+            "L4 multi-concept",
+            "L5 full passage",
+        ]
         level = self.current.level
         header = QLabel(
             f"<b>Concept {resp.concept_id}</b> &nbsp; "
@@ -97,9 +105,13 @@ class TransferReviewer(QWidget):
         for i, btn in enumerate(self.choice_buttons):
             btn.setEnabled(False)
             if i == self.current.answer:
-                btn.setStyleSheet("text-align:left;padding:8px;background:#16a34a;color:white;")
+                btn.setStyleSheet(
+                    "text-align:left;padding:8px;background:#16a34a;color:white;"
+                )
             elif i == idx:
-                btn.setStyleSheet("text-align:left;padding:8px;background:#dc2626;color:white;")
+                btn.setStyleSheet(
+                    "text-align:left;padding:8px;background:#dc2626;color:white;"
+                )
 
         verdict = QLabel("Correct" if correct else "Not yet")
         verdict.setStyleSheet(
@@ -116,7 +128,9 @@ class TransferReviewer(QWidget):
         line.setFrameShape(QFrame.Shape.HLine)
         self._layout.addWidget(line)
         buttons = QDialogButtonBox()
-        next_btn = buttons.addButton("Next item", QDialogButtonBox.ButtonRole.AcceptRole)
+        next_btn = buttons.addButton(
+            "Next item", QDialogButtonBox.ButtonRole.AcceptRole
+        )
         qconnect(next_btn.clicked, self.load_next)
         done_btn = buttons.addButton("Done", QDialogButtonBox.ButtonRole.RejectRole)
         qconnect(done_btn.clicked, self.close)
@@ -128,11 +142,15 @@ def open_transfer_reviewer(mw: AnkiQt) -> None:
         showWarning("Open a collection first.")
         return
     if not mw.col._backend.next_transfer_item(concept_id=0).found:
-        showInfo("No transfer items yet. Import the concept map and items first "
-                 "(see speedrun/import_content.py).")
+        showInfo(
+            "No transfer items yet. Import the concept map and items first "
+            "(see speedrun/import_content.py)."
+        )
         return
-    mw._speedrun_reviewer = TransferReviewer(mw)
-    mw._speedrun_reviewer.show()
+    # Keep a reference on the main window so the widget isn't garbage-collected.
+    reviewer = TransferReviewer(mw)
+    mw._speedrun_reviewer = reviewer  # type: ignore[attr-defined]
+    reviewer.show()
 
 
 def add_reviewer_action(mw: AnkiQt) -> None:

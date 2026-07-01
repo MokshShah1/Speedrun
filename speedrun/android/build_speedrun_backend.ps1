@@ -88,8 +88,15 @@ try {
     # redirecting native stderr turns cargo's progress output into fatal errors.
     # Native exit codes are also not covered by ErrorActionPreference, so check
     # them explicitly or the script reports success after a failed build.
-    cargo check | Out-Host
-    if ($LASTEXITCODE -ne 0) { throw "cargo check against the fork failed" }
+    #
+    # Refresh Cargo.lock against the repointed fork WITHOUT compiling. A plain
+    # `cargo check` here builds the whole workspace, and rsdroid's build script
+    # (rslib-bridge/fluent.rs) reads anki/out/strings.json - which only
+    # `cargo run -p build_rust` produces, via its gradle/ninja phase. Checking
+    # first therefore fails with a strings.json NotFound before the real build
+    # ever runs. generate-lockfile refreshes the lock without triggering that.
+    cargo generate-lockfile | Out-Host
+    if ($LASTEXITCODE -ne 0) { throw "cargo generate-lockfile against the fork failed" }
 
     Step "Building the backend .aar (cargo run -p build_rust)"
     # Set RELEASE=1 for an optimized build once a debug build is confirmed.
