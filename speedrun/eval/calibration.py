@@ -15,10 +15,15 @@ the actual backend:
         outcome   ~ Bernoulli(sigmoid(true_theta - b))
         engine.record_transfer_review(outcome)      # engine updates theta_hat
 
-and score the engine's predictions with Brier, log-loss and ECE, against two
-baselines: always-0.5 and the base rate (predict the global correct fraction).
-A genuinely informative, calibrated model beats the base rate on log-loss. The
-script exits non-zero if it does not, so it can gate a build.
+and score the engine's predictions with Brier, log-loss and ECE, against three
+baselines: always-0.5, the base rate (predict the global correct fraction), and
+a *difficulty-only* prior that knows each item's `b` but never learns `theta`
+(fixed at the prior 0). The last baseline matters: because the engine's
+prediction conditions on `b`, "beats base-rate" is nearly guaranteed even for a
+non-learning engine, so it is a weak claim on its own. The load-bearing gate is
+that the converged engine beats the difficulty-only prior - that is what proves
+its ability-learning adds signal beyond merely knowing item difficulty. The
+script exits non-zero if any gate fails, so it can gate a build.
 
 Run:  python speedrun/eval/calibration.py
 """
@@ -82,6 +87,7 @@ def run(n_concepts: int = 12, passes: int = 30, seed: int = 7) -> dict:
     theta_by_concept: dict[int, float] = {cid: 0.0 for cid in range(1, n_concepts + 1)}
     preds: list[float] = []
     outcomes: list[int] = []
+    bs: list[float] = []  # item difficulty per trial, for the difficulty-only baseline
 
     items = sorted(item_b.items())  # (item_id, b)
     item_concept = {}
@@ -101,6 +107,7 @@ def run(n_concepts: int = 12, passes: int = 30, seed: int = 7) -> dict:
             outcome = 1 if rng.random() < sigmoid(true_theta[cid] - b) else 0
             preds.append(p_hat)
             outcomes.append(outcome)
+            bs.append(b)
             col._backend.record_transfer_review(
                 item_id=item_id, concept_id=cid, correct=bool(outcome), latency_ms=1000
             )
@@ -113,6 +120,10 @@ def run(n_concepts: int = 12, passes: int = 30, seed: int = 7) -> dict:
     base_rate = metrics.mean([float(o) for o in outcomes])
     half = [0.5] * len(preds)
     rate = [base_rate] * len(preds)
+    # Difficulty-aware but NON-learning baseline: knows each item's b, keeps
+    # theta fixed at the prior 0. The engine must beat this (once converged) to
+    # prove ability-learning adds signal beyond just knowing difficulty.
+    prior = [sigmoid(0.0 - b) for b in bs]
 
     # Score the converged regime (second half) to exclude cold-start burn-in,
     # and report the full run too for honesty.
@@ -138,6 +149,14 @@ def run(n_concepts: int = 12, passes: int = 30, seed: int = 7) -> dict:
             "brier": metrics.brier_score(rate, outcomes),
             "log_loss": metrics.log_loss(rate, outcomes),
         },
+        "baseline_prior": {
+            "brier": metrics.brier_score(prior, outcomes),
+            "log_loss": metrics.log_loss(prior, outcomes),
+        },
+        "baseline_prior_converged": {
+            "brier": metrics.brier_score(prior[h:], outcomes[h:]),
+            "log_loss": metrics.log_loss(prior[h:], outcomes[h:]),
+        },
         "reliability": metrics.reliability_bins(preds[h:], outcomes[h:]),
     }
 
@@ -154,6 +173,8 @@ def main() -> int:
           f"brier {r['baseline_half']['brier']:.4f}")
     print(f"  baseline base-rate      : {r['baseline_rate']['log_loss']:.4f}  "
           f"brier {r['baseline_rate']['brier']:.4f}")
+    print(f"  baseline difficulty-only: {r['baseline_prior']['log_loss']:.4f}  "
+          f"brier {r['baseline_prior']['brier']:.4f}   (knows b, theta fixed at prior 0)")
     print("  reliability (2nd half; pred -> observed):")
     for b in r["reliability"]:
         if b["n"]:
@@ -162,9 +183,16 @@ def main() -> int:
 
     beats_rate = r["engine"]["log_loss"] < r["baseline_rate"]["log_loss"]
     beats_half = r["engine"]["log_loss"] < r["baseline_half"]["log_loss"]
+    # The load-bearing test: the converged engine must beat a predictor that
+    # knows item difficulty but never learns theta. This isolates the value of
+    # the engine's ability-learning (see module docstring).
+    beats_prior = (
+        r["engine_converged"]["log_loss"] < r["baseline_prior_converged"]["log_loss"]
+    )
     print(f"  engine beats base-rate log-loss: {beats_rate}")
     print(f"  engine beats always-0.5 log-loss: {beats_half}")
-    ok = beats_rate and beats_half
+    print(f"  engine (2nd half) beats difficulty-only prior: {beats_prior}  <- load-bearing")
+    ok = beats_rate and beats_half and beats_prior
     print("  RESULT:", "PASS" if ok else "FAIL")
     return 0 if ok else 1
 

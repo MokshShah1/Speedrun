@@ -18,7 +18,15 @@ MIN_CHOICE_LEN = 1
 
 # AAMC items essentially never use these; they also hide answer-key errors
 # (see the glucagon L2 defect where "all of the above" bundled a wrong option).
-CATCHALL_RE = re.compile(r"\b(all|none) of the above\b", re.IGNORECASE)
+# Matches the classic phrasings plus common equivalents ("all of these",
+# "any of the above", "both A and B", "A and C only") so paraphrased catchalls
+# don't slip past the exact rule the glucagon defect motivated.
+CATCHALL_RE = re.compile(
+    r"\b(all|none|any|both|either)\s+of\s+(the\s+)?(above|following|these|them)\b"
+    r"|\b(both|neither)\s+[a-e]\)?\s+and\s+[a-e]\b"
+    r"|\b[a-e]\)?\s+and\s+[a-e]\)?\s+only\b",
+    re.IGNORECASE,
+)
 
 # Level-appropriateness. L0 (definition) and L1 (paraphrase) must be crisp recall,
 # not scenario questions. A clinical vignette at L0/L1 means the item is really an
@@ -45,7 +53,11 @@ def check_item(item: dict, concept_title: str = "", source_text: str = "") -> li
     """Return the names of the rules this item fails (empty == accepted)."""
     fails: list[str] = []
     stem = (item.get("stem") or "").strip()
-    choices = item.get("choices") or []
+    # Coerce choices to strings up front: a model may emit null or a number, and
+    # every rule below assumes str. Without this a single non-string choice
+    # raises AttributeError and aborts the whole generation batch. A null becomes
+    # "" (caught by empty_choice); a number becomes its text form.
+    choices = [c if isinstance(c, str) else ("" if c is None else str(c)) for c in (item.get("choices") or [])]
     answer = item.get("answer", -1)
     explanation = (item.get("explanation") or "").strip()
 

@@ -9,8 +9,11 @@ then keeps writing in a tight loop. The parent hard-kills it (TerminateProcess /
 SIGKILL - no cleanup, no flush), reopens the collection, and asserts:
 
 - the collection opens (no corruption / no stuck lock),
-- every committed review survived (count >= K) - SQLite/WAL drops only the
-  single in-flight transaction,
+- every committed review survived - crucially including reviews committed
+  *after* the READY marker, because the child never checkpoints, so this
+  exercises WAL recovery of committed-but-uncheckpointed transactions (the ones
+  a real crash actually endangers), not just already-flushed data; SQLite/WAL
+  drops only the single in-flight transaction,
 - invariants hold (sum of per-concept obs == total reviews; readiness in band),
 - the collection is still writable afterwards (recovery is complete).
 
@@ -54,18 +57,21 @@ def child(path: str) -> int:
         item_id = _items(cid)[n % len(LADDER_B)]
         col._backend.record_transfer_review(item_id=item_id, concept_id=cid, correct=bool(n % 2), latency_ms=900)
         n += 1
-    # Force a WAL checkpoint so the committed reviews are durable on disk.
-    try:
-        col._backend.checkpoint()  # type: ignore[attr-defined]
-    except Exception:
-        pass
+    # Deliberately DO NOT checkpoint: the committed reviews stay in the WAL
+    # (uncheckpointed), so surviving a hard kill proves durability of
+    # committed-but-uncheckpointed transactions - the case a real crash
+    # endangers - not the trivial case of already-flushed data.
     print(f"READY committed={n}", flush=True)
-    # Keep writing so a transaction is likely in flight when we are killed.
+    # Keep committing and reporting progress so the parent can hard-kill us well
+    # past the initial batch, then assert every reported (committed) review
+    # survived.
     while True:
         cid = (n % N_CONCEPTS) + 1
         item_id = _items(cid)[n % len(LADDER_B)]
         col._backend.record_transfer_review(item_id=item_id, concept_id=cid, correct=bool(n % 2), latency_ms=900)
         n += 1
+        if n % 10 == 0:
+            print(f"PROGRESS {n}", flush=True)
     return 0  # unreachable
 
 
@@ -112,17 +118,26 @@ def parent() -> int:
             proc.kill()
             print("  child never reached READY"); return 1
 
-        # Let it get mid-write, then hard-kill (no cleanup).
-        time.sleep(0.3)
+        # Let the child commit well past the initial batch (all uncheckpointed),
+        # tracking how many it reported committed, then hard-kill (no cleanup).
+        durable = COMMIT_BEFORE_READY
+        target = COMMIT_BEFORE_READY + 60
+        for line in proc.stdout:
+            if line.startswith("PROGRESS"):
+                durable = int(line.split()[1])
+                if durable >= target:
+                    break
         proc.kill()
         proc.wait(timeout=10)
-        print(f"  child hard-killed (exit {proc.returncode}); reopening...")
+        print(f"  child hard-killed (exit {proc.returncode}) after {durable} committed; reopening...")
         time.sleep(0.3)
 
-        # Reopen and verify recovery.
+        # Reopen and verify recovery: every review the child reported committed
+        # was uncheckpointed, so this asserts committed-but-uncheckpointed
+        # transactions all survived the crash.
         col = _open(path)
         total = total_reviews(col)
-        assert total >= COMMIT_BEFORE_READY, f"lost data: {total} < {COMMIT_BEFORE_READY}"
+        assert total >= durable, f"lost committed-but-uncheckpointed data: {total} < {durable}"
         m = col._backend.mastery_query(concept_ids=[])
         obs_sum = sum(e.n_transfer_obs for e in m.entries)
         assert obs_sum == total, f"obs sum {obs_sum} != total {total}"
@@ -134,7 +149,8 @@ def parent() -> int:
         assert total_reviews(col) == total + 1
         col.close(downgrade=False)
 
-        print(f"  recovered: {total} committed reviews durable, invariants hold, writable after crash")
+        print(f"  recovered: {total} committed reviews durable "
+              f"(>= {durable} uncheckpointed), invariants hold, writable after crash")
         print("  RESULT: PASS")
         return 0
     finally:

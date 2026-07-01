@@ -122,7 +122,13 @@ def tag_collection(col, index: ConceptIndex, search: str, min_score: float, dry_
         assigned[cid] += 1
         tag = f"{TAG_PREFIX}{cid}"
         examples.setdefault(cid, note_text(note)[:60].strip())
-        if tag not in note.tags:
+        # A note belongs to exactly one concept. Strip any stale speedrun:: tags
+        # (e.g. from an earlier run whose best match differed) before adding the
+        # current one; otherwise the note stays tagged for multiple concepts and
+        # R double-counts it.
+        speedrun_tags = [t for t in note.tags if t.startswith(TAG_PREFIX)]
+        if speedrun_tags != [tag]:
+            note.tags = [t for t in note.tags if not t.startswith(TAG_PREFIX)]
             note.add_tag(tag)
             if not dry_run:
                 col.update_note(note)

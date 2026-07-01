@@ -52,7 +52,12 @@ def is_duplicate(item: dict, existing: list[dict], threshold: float = DUP_JACCAR
 def scan(item: dict, source_text: str, existing: list[dict]) -> list[str]:
     """Return leakage problems for an item (empty == clean)."""
     problems: list[str] = []
-    if copies_source(item.get("stem", ""), source_text):
+    # Check verbatim source copying across all learner-visible text, not just the
+    # stem: an answer, distractor, or (especially) explanation lifted word-for-word
+    # from the source is memorisation just as much as a copied stem.
+    choices = [c for c in (item.get("choices") or []) if isinstance(c, str)]
+    parts = [item.get("stem", ""), item.get("explanation", ""), *choices]
+    if any(part and copies_source(part, source_text) for part in parts):
         problems.append("copies_source")
     if is_duplicate(item, existing):
         problems.append("near_duplicate")

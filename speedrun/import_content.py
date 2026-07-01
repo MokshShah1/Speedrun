@@ -82,16 +82,26 @@ def import_seed_items(col: Collection, code_to_id: dict[str, int]) -> int:
     return count
 
 
-def run_demo_reviews(col: Collection) -> None:
+def run_demo_reviews(col: Collection, code_to_id: dict[str, int]) -> None:
     """Record a few graded transfer answers so the dashboard has signal."""
     data = load_json("seed_items.json")
     # Answer the first eight items: lower ladder levels correct, harder ones
-    # missed - the realistic "can recall, can't yet transfer" pattern.
-    for i, item in enumerate(data["items"][:8], start=1):
+    # missed - the realistic "can recall, can't yet transfer" pattern. Each
+    # review is attributed to the item's OWN concept (mirroring import_seed_items'
+    # id/skip logic), not a hardcoded concept_id=1, so the demo signal lands on
+    # the concepts the items actually belong to.
+    graded = 0
+    for i, item in enumerate(data["items"], start=1):
+        if graded >= 8:
+            break
+        concept_id = code_to_id.get(item["concept_id"])
+        if concept_id is None:
+            continue
         correct = int(item["level"]) <= 2
         col._backend.record_transfer_review(
-            item_id=i, concept_id=1, correct=correct, latency_ms=5000
+            item_id=i, concept_id=concept_id, correct=correct, latency_ms=5000
         )
+        graded += 1
 
 
 def print_readiness(col: Collection) -> None:
@@ -140,7 +150,7 @@ def main() -> None:
             if nxt.found:
                 print(f"\nnext_transfer_item (concept {nxt.concept_id}, "
                       f"L{nxt.item.level}): {nxt.item.stem[:70]}...")
-            run_demo_reviews(col)
+            run_demo_reviews(col, code_to_id)
             print_readiness(col)
     finally:
         col.close()
