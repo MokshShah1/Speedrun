@@ -40,12 +40,15 @@ def _bar(label: str, pct: float, sub: str) -> str:
 def _report_html(report) -> str:
     mem = report.memory
     perf = report.performance
+    gap = mem - perf
     sections_rows = ""
     for s in report.sections:
+        s_gap = s.memory - s.performance
         sections_rows += (
             f"<tr><td>{s.section}</td>"
             f"<td style='text-align:right;'>{s.memory * 100:.0f}%</td>"
             f"<td style='text-align:right;'>{s.performance * 100:.0f}%</td>"
+            f"<td style='text-align:right;font-weight:bold;'>{s_gap * 100:+.0f}%</td>"
             f"<td style='text-align:right;'>{s.score} ({s.score_low}-{s.score_high})</td>"
             f"<td style='text-align:right;'>{s.coverage * 100:.0f}%</td></tr>"
         )
@@ -67,11 +70,18 @@ def _report_html(report) -> str:
          of the exam has transfer data. Readiness is built on transfer, not recall.</p>
       {_bar("Memory (recall R)", mem, f"{mem * 100:.0f}% - what you can remember")}
       {_bar("Performance (transfer T)", perf, f"{perf * 100:.0f}% - what you can actually use")}
+      <div style="margin:14px 0;padding:12px 14px;background:#fff7ed;border:1px solid #fdba74;border-radius:8px;">
+        <div style="font-weight:bold;font-size:16px;">Gap &nbsp;&nbsp; G = R - T = {gap * 100:+.0f}%</div>
+        <div style="color:#666;font-size:12px;margin-top:2px;">The "illusion of mastery" gap - memory minus transfer.
+          A large positive gap means you can recall it but can't yet use it, so study transfer there first.
+          (It reads negative until you have memory data.)</div>
+      </div>
       <h3>By section</h3>
       <table cellpadding="6" style="border-collapse:collapse;width:100%;">
         <tr style="border-bottom:1px solid #ccc;text-align:left;">
           <th>Section</th><th style='text-align:right;'>Memory</th>
           <th style='text-align:right;'>Performance</th>
+          <th style='text-align:right;'>Gap (G)</th>
           <th style='text-align:right;'>Score</th>
           <th style='text-align:right;'>Coverage</th></tr>
         {sections_rows}
