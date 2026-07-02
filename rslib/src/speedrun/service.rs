@@ -96,17 +96,18 @@ impl crate::services::SpeedrunService for Collection {
     ) -> Result<pb::NextTransferItemResponse> {
         self.storage.ensure_speedrun_tables()?;
         if input.concept_id != 0 {
-            let item = self.storage.lowest_level_item(input.concept_id)?;
+            let item = self.storage.next_unanswered_item(input.concept_id)?;
             return Ok(pb::NextTransferItemResponse {
                 found: item.is_some(),
                 item: item.map(item_to_proto),
                 concept_id: input.concept_id,
             });
         }
-        // Walk the transfer-gap queue and return the first concept that
-        // actually has an authored item to study.
+        // Walk the transfer-gap queue and return the first concept that still
+        // has an unanswered item to study (a concept whose whole ladder is done
+        // is skipped).
         for concept_id in self.transfer_gap_queue_inner(0)?.concept_ids {
-            if let Some(item) = self.storage.lowest_level_item(concept_id)? {
+            if let Some(item) = self.storage.next_unanswered_item(concept_id)? {
                 return Ok(pb::NextTransferItemResponse {
                     found: true,
                     item: Some(item_to_proto(item)),
@@ -705,6 +706,64 @@ mod test {
         )?;
         assert!(from_queue.found);
         assert_eq!(from_queue.concept_id, 1);
+        Ok(())
+    }
+
+    /// The review loop advances the ladder: after an item is answered it is not
+    /// served again, so the next call returns the next rung, and once every rung
+    /// is answered the concept yields nothing.
+    #[test]
+    fn next_transfer_item_advances_ladder_and_skips_answered() -> Result<()> {
+        let mut col = open_col();
+        add_concept(&mut col, 1, 0.5);
+        for (id, level) in [(51i64, 0u32), (52i64, 1u32)] {
+            let _ = SpeedrunService::upsert_item(
+                &mut col,
+                pb::Item {
+                    id,
+                    concept_id: 1,
+                    level,
+                    difficulty: -1.0,
+                    source_ref: "seed".into(),
+                    ai_generated: false,
+                    stem: format!("L{level}"),
+                    choices: vec!["a".into(), "b".into()],
+                    answer: 0,
+                    explanation: "x".into(),
+                },
+            )
+            .unwrap();
+        }
+
+        let answer = |col: &mut Collection, item_id: i64| {
+            let _ = SpeedrunService::record_transfer_review(
+                col,
+                pb::RecordTransferReviewRequest {
+                    item_id,
+                    concept_id: 1,
+                    correct: true,
+                    latency_ms: 100,
+                },
+            )
+            .unwrap();
+        };
+
+        // Lowest rung first.
+        let first =
+            SpeedrunService::next_transfer_item(&mut col, pb::NextTransferItemRequest { concept_id: 1 })?;
+        assert_eq!(first.item.as_ref().unwrap().id, 51);
+        answer(&mut col, 51);
+
+        // Advances to the next rung rather than repeating L0.
+        let second =
+            SpeedrunService::next_transfer_item(&mut col, pb::NextTransferItemRequest { concept_id: 1 })?;
+        assert_eq!(second.item.as_ref().unwrap().id, 52);
+        answer(&mut col, 52);
+
+        // Whole ladder answered -> nothing left.
+        let done =
+            SpeedrunService::next_transfer_item(&mut col, pb::NextTransferItemRequest { concept_id: 1 })?;
+        assert!(!done.found);
         Ok(())
     }
 

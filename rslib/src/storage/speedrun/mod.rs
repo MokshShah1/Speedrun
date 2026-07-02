@@ -159,13 +159,20 @@ impl SqliteStorage {
             .transpose()
     }
 
-    /// The lowest-ladder-level item for a concept (the rung to teach next).
-    pub(crate) fn lowest_level_item(&self, concept_id: i64) -> Result<Option<Item>> {
+    /// The lowest-ladder-level item for a concept that has NOT yet been answered
+    /// (the next rung to teach). Excludes items that already have a
+    /// transfer_review, so the review loop advances L0 -> L5 as the student
+    /// answers instead of repeating the concept's lowest item forever. Returns
+    /// None once every item for the concept has been answered.
+    pub(crate) fn next_unanswered_item(&self, concept_id: i64) -> Result<Option<Item>> {
         self.db
             .prepare_cached(
                 "SELECT id, concept_id, level, difficulty, source_ref, ai_generated,
                         stem, choices, answer, explanation
-                 FROM speedrun_item WHERE concept_id = ? ORDER BY level, id LIMIT 1",
+                 FROM speedrun_item
+                 WHERE concept_id = ?
+                   AND id NOT IN (SELECT item_id FROM transfer_review)
+                 ORDER BY level, id LIMIT 1",
             )?
             .query_and_then([concept_id], row_to_item)?
             .next()
