@@ -43,11 +43,13 @@ class CustomBuildHook(BuildHookInterface):
         # Handle version detection
         actual_version = version
         if version == "standard":
-            # Read actual version from .version file
+            # Read actual version from .version file, stripping the fork's
+            # "-speedrun" marker so the anki== pin is a valid PEP 440 specifier
+            # matching the built anki wheel (see python/version.py).
             project_root = Path(self.root).parent
             version_file = project_root / ".version"
             if version_file.exists():
-                actual_version = version_file.read_text().strip()
+                actual_version = version_file.read_text().strip().split("-", 1)[0]
 
         # Only add exact version for real releases, not editable installs
         if actual_version != "editable":

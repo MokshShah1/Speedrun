@@ -203,7 +203,7 @@ def build(args: argparse.Namespace) -> None:
             "--update",
             "--update-requirements",
             "--update-resources",
-            "--update-support",
+            *([] if os.environ.get("SKIP_UPDATE_SUPPORT") else ["--update-support"]),
             "--log",
         ],
         cwd=out_dir,
