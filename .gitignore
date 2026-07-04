@@ -24,3 +24,9 @@ ts/.svelte-kit
 docs/_build/
 docs/autoapi/
 .complexipy_cache
+
+# Speedrun: large third-party decks and local scratch files
+*.apkg
+_bench_probe.py
+_preview_dash.py
+_phone_probe.py

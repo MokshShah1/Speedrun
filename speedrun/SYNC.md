@@ -54,6 +54,25 @@ derived state — we sync the **append-only review log** and recompute.
 - `ImportTransferLog(TransferLog) -> {added, total}` — union-merge a peer's log
   and replay affected concepts.
 
+### Transport (the wire between devices)
+
+The RPCs move a log in/out of one backend; a tiny transport moves it between
+devices. It reuses the same union-by-guid, replay model, so it inherits the
+idempotency and offline-safety.
+
+- **Server** (`speedrun/sync/transfer_sync_server.py`): stdlib HTTP, holds one
+  append-only union-by-guid log. `POST /transfer/push` merges a device's log;
+  `GET /transfer/pull` returns the merged log; `GET /health`. Persists to JSON.
+- **Desktop client** (`speedrun/sync/transfer_sync_client.py`): opens the
+  collection, `ExportTransferLog` → push, pull → `ImportTransferLog`. Uses raw
+  sockets (no `urllib`/`ssl`) because Anki's bundled Windows python aborts on the
+  OpenSSL applink path when `ssl` loads; the transport is localhost cleartext.
+- **Phone** (`Anki-Android/.../speedrun/TransferLogSync.kt`): the same
+  export→push→pull→import, called from `SyncWorker` at the end of every normal
+  sync so the transfer log rides along with Anki's sync. `HttpURLConnection` +
+  `org.json` only (no new dependency). `10.0.2.2:8090` reaches the desktop from
+  the emulator. Best-effort: never throws, so it can't break Anki's own sync.
+
 ### Proof
 
 - Rust (`rslib/src/speedrun/sync.rs`):
@@ -62,15 +81,22 @@ derived state — we sync the **append-only review log** and recompute.
   - `replay_is_order_independent_of_arrival` — delivering the log reversed yields
     the same ability (canonical sort).
   - `recompute_matches_incremental_record` — replay equals the live path.
+  - `converges_when_item_missing_locally` — difficulty travels in the record, so a
+    device that lacks the item still converges.
 - Python end-to-end through the built backend:
   - `pylib/tests/test_speedrun_sync.py` (pytest, runs in the Anki dev env).
-  - `speedrun/verify_sync.py` (standalone; run `python speedrun/verify_sync.py`
-    after `tools/ninja pylib`). Observed: both devices converge to the same
-    `theta`, totals 10/10 → 20/20, re-import `added=0`.
+  - `speedrun/sync/test_transfer_sync.py` — **two devices over real HTTP**: spins
+    up the transfer-sync server, drives two on-disk collections through the
+    desktop client, and asserts two-way propagation, convergence (identical T),
+    idempotency, and offline-then-sync. Observed: both converge to 11 reviews with
+    identical per-concept T.
+  - `speedrun/verify_sync.py` (standalone RPC-level check).
 
-## Still needs hardware / a real run
+### On-device scores
 
-- The two-device demo on a **real phone** is Phase 5 (AnkiDroid on the shared
-  engine). The merge logic and RPCs are proven headlessly here; wiring the phone
-  to call `ImportTransferLog`/`ExportTransferLog` alongside Anki's normal sync is
-  the remaining integration.
+The shared Rust engine computes the three scores on the phone.
+`TransferLogSync.logReadiness()` logs `ReadinessReport` (Memory R / Performance T
+/ Readiness + range + give-up count) to logcat after each sync — the phone-side
+proof for "three scores + give-up rule on the phone".
+
+See `FRIDAY_SUBMISSION.md` for the end-to-end run + recording playbook.

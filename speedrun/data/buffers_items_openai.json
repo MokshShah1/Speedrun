@@ -1,0 +1,226 @@
+[
+  {
+    "stem": "An experiment requires a buffer at a pH of 8.5. Which of the following weak acids would be the most suitable choice based on its pKa?",
+    "choices": [
+      "pKa 7.0",
+      "pKa 8.0",
+      "pKa 8.5",
+      "pKa 9.0"
+    ],
+    "answer": 3,
+    "explanation": "To achieve a pH of 8.5, a weak acid with a pKa close to this value (such as 9.0) would be optimal, as buffers work well within one pH unit of their pKa.",
+    "level": 0,
+    "b": -1.5,
+    "ai_generated": true,
+    "concept_id": 15,
+    "source_ref": "MileDown General Chemistry: Acids, Bases, and Buffers"
+  },
+  {
+    "stem": "A biologist needs to prepare a buffer for an experiment that requires a pH of 6.5. Which weak acid, with pKa values provided, would be the best choice?",
+    "choices": [
+      "Citric acid (pKa 3.13)",
+      "Phosphoric acid (pKa 7.2)",
+      "Lactic acid (pKa 3.86)",
+      "Acetic acid (pKa 4.76)"
+    ],
+    "answer": 1,
+    "explanation": "The best choice for the buffer would be phosphoric acid with a pKa of 7.2, as it is closest to the desired pH of 6.5, allowing for effective buffering.",
+    "level": 1,
+    "b": -0.9,
+    "ai_generated": true,
+    "concept_id": 15,
+    "source_ref": "MileDown General Chemistry: Acids, Bases, and Buffers"
+  },
+  {
+    "stem": "A researcher is studying the effects of pH on enzyme activity. She prepares a buffer with a pKa of 7.4 and needs to maintain a pH of 7.2. If the concentration of the weak acid is 0.1 M, what should the concentration of its conjugate base be to achieve the desired pH?",
+    "choices": [
+      "0.08 M",
+      "0.06 M",
+      "0.1 M",
+      "0.12 M"
+    ],
+    "answer": 0,
+    "explanation": "Using the Henderson-Hasselbalch equation, rearranging for [A-] gives us: [A-] = [HA] * 10^(pH - pKa). Plugging in [HA] = 0.1 M, pH = 7.2, and pKa = 7.4 gives us [A-] = 0.1 * 10^(7.2 - 7.4) = 0.1 * 10^(-0.2) \u2248 0.08 M.",
+    "level": 2,
+    "b": -0.2,
+    "ai_generated": true,
+    "concept_id": 15,
+    "source_ref": "MileDown General Chemistry: Acids, Bases, and Buffers"
+  },
+  {
+    "stem": "If a buffer solution has a pH of 6.5 and consists of a weak acid with a pKa of 6.0, what is the ratio of the conjugate base to the weak acid in this buffer?",
+    "choices": [
+      "1:3",
+      "3:1",
+      "1:1",
+      "2:1"
+    ],
+    "answer": 1,
+    "explanation": "Using the Henderson-Hasselbalch equation, we determine that the ratio [A-]/[HA] can be found from the pH and pKa. pH = 6.5, pKa = 6.0 leads to log([A-]/[HA]) = 6.5 - 6.0 = 0.5. Therefore, [A-]/[HA] = 10^(0.5) \u2248 3.16, indicating a ratio of approximately 3:1.",
+    "level": 2,
+    "b": -0.2,
+    "ai_generated": true,
+    "concept_id": 15,
+    "source_ref": "MileDown General Chemistry: Acids, Bases, and Buffers"
+  },
+  {
+    "stem": "A biochemist is designing an experiment that requires a buffer solution with a target pH of 7.4. She has access to acetic acid (pKa = 4.76) and bicarbonate (pKa = 6.1). Which of the following combinations would best maintain the desired pH?",
+    "choices": [
+      "1M acetic acid and 1M sodium acetate",
+      "0.1M bicarbonate and 0.1M carbonic acid",
+      "1M sodium bicarbonate and 1M sodium acetate",
+      "0.5M acetic acid and 0.5M sodium acetate"
+    ],
+    "answer": 2,
+    "explanation": "Sodium bicarbonate has a pKa closer to 7.4 and can effectively maintain a buffer around this pH, unlike acetic acid and its conjugate base.",
+    "level": 3,
+    "b": 0.5,
+    "ai_generated": true,
+    "concept_id": 15,
+    "source_ref": "MileDown General Chemistry: Acids, Bases, and Buffers"
+  },
+  {
+    "stem": "A laboratory technician is tasked with creating a buffer at pH 5.5 using citric acid (pKa = 3.13) and sodium citrate. If she decides to use a 0.2M solution of citric acid, what concentration of sodium citrate should she prepare?",
+    "choices": [
+      "0.03M",
+      "0.05M",
+      "0.2M",
+      "0.4M"
+    ],
+    "answer": 0,
+    "explanation": "Using the Henderson-Hasselbalch equation, the ratio of [A-] to [HA] can be calculated to achieve the target pH of 5.5, which requires a lower concentration of the conjugate base compared to the acid.",
+    "level": 3,
+    "b": 0.5,
+    "ai_generated": true,
+    "concept_id": 15,
+    "source_ref": "MileDown General Chemistry: Acids, Bases, and Buffers"
+  },
+  {
+    "stem": "A student is analyzing a buffer solution made from a weak base, ammonia (pKa = 9.25), and its conjugate acid, ammonium chloride. If the student wants to adjust the pH to 8.5, how should she alter the concentrations of the components?",
+    "choices": [
+      "Increase ammonia concentration.",
+      "Decrease ammonia concentration.",
+      "Increase ammonium chloride concentration.",
+      "Decrease ammonium chloride concentration."
+    ],
+    "answer": 3,
+    "explanation": "To lower the pH to 8.5, the concentration of the conjugate acid (ammonium chloride) needs to be increased relative to ammonia, thus decreasing the pH.",
+    "level": 3,
+    "b": 0.5,
+    "ai_generated": true,
+    "concept_id": 15,
+    "source_ref": "MileDown General Chemistry: Acids, Bases, and Buffers"
+  },
+  {
+    "stem": "A medical researcher is studying the effects of metabolic acidosis on blood pH. If the pKa of the primary buffer system in blood (bicarbonate) is 6.1, what would be the expected pH if the bicarbonate concentration decreases while the carbonic acid concentration remains constant?",
+    "choices": [
+      "The pH will increase.",
+      "The pH will decrease.",
+      "The pH will remain unchanged.",
+      "The pH will fluctuate unpredictably."
+    ],
+    "answer": 1,
+    "explanation": "A decrease in bicarbonate concentration, while keeping carbonic acid constant, would raise the ratio of acid to base, thus lowering the pH.",
+    "level": 3,
+    "b": 0.5,
+    "ai_generated": true,
+    "concept_id": 15,
+    "source_ref": "MileDown General Chemistry: Acids, Bases, and Buffers"
+  },
+  {
+    "stem": "A student dilutes a buffer solution that has a pH of 6.5 and a pKa of 6.0 by adding water. What is the expected effect on the pH of the buffer solution?",
+    "choices": [
+      "The pH will increase significantly.",
+      "The pH will decrease significantly.",
+      "The pH will remain approximately the same.",
+      "The pH will become neutral."
+    ],
+    "answer": 2,
+    "explanation": "Diluting a buffer with water changes the concentrations of the acid and base but does not change their ratio. Therefore, the pH remains approximately the same, as buffering capacity is retained.",
+    "level": 4,
+    "b": 1.0,
+    "ai_generated": true,
+    "concept_id": 15,
+    "source_ref": "MileDown General Chemistry: Acids, Bases, and Buffers"
+  },
+  {
+    "stem": "In an experiment, a researcher adds a strong acid to a buffer consisting of a weak acid with a pKa of 5.0 and its conjugate base. If the pH before the addition of the strong acid was 5.5, what will happen to the pH after the addition?",
+    "choices": [
+      "The pH will increase.",
+      "The pH will decrease slightly.",
+      "The pH will remain unchanged.",
+      "The pH will decrease significantly."
+    ],
+    "answer": 1,
+    "explanation": "Adding a strong acid will convert some of the conjugate base into its weak acid form. Since the initial pH of 5.5 is above the pKa of 5.0, the pH will decrease slightly as the buffer neutralizes the added acid.",
+    "level": 4,
+    "b": 1.0,
+    "ai_generated": true,
+    "concept_id": 15,
+    "source_ref": "MileDown General Chemistry: Acids, Bases, and Buffers"
+  },
+  {
+    "stem": "A buffer solution with a pH of 7.4 is being prepared using a weak base with a pKb of 4.75. What is the corresponding pKa of the conjugate acid of the weak base?",
+    "choices": [
+      "4.75",
+      "7.4",
+      "9.25",
+      "3.25"
+    ],
+    "answer": 2,
+    "explanation": "The relationship between pKa and pKb is given by the equation: pKa + pKb = 14. Therefore, pKa = 14 - 4.75 = 9.25. Thus, the correct answer is 9.25.",
+    "level": 5,
+    "b": 1.6,
+    "ai_generated": true,
+    "concept_id": 15,
+    "source_ref": "MileDown General Chemistry: Acids, Bases, and Buffers"
+  },
+  {
+    "stem": "During an experiment, a scientist adds a strong acid to a buffer solution containing equal concentrations of a weak acid and its conjugate base. What effect does this have on the buffer's pH?",
+    "choices": [
+      "The pH increases significantly.",
+      "The pH decreases significantly.",
+      "The pH remains nearly constant.",
+      "The pH becomes neutral."
+    ],
+    "answer": 2,
+    "explanation": "Adding a strong acid to a buffer solution that contains equal concentrations of weak acid and its conjugate base will convert some of the conjugate base into its conjugate acid, but the overall pH will remain nearly constant due to the buffer's capacity to neutralize added acid.",
+    "level": 5,
+    "b": 1.6,
+    "ai_generated": true,
+    "concept_id": 15,
+    "source_ref": "MileDown General Chemistry: Acids, Bases, and Buffers"
+  },
+  {
+    "stem": "A biochemist needs to select a buffer for an experiment that requires a pH of 8.0. Which of the following weak acids would be the most appropriate choice based on its pKa?",
+    "choices": [
+      "Acetic acid (pKa 4.76)",
+      "Phosphate (pKa 7.2)",
+      "Ammonium (pKa 9.25)",
+      "Citric acid (pKa 3.13)"
+    ],
+    "answer": 1,
+    "explanation": "The best choice is phosphate, with a pKa of 7.2, as it is closest to the target pH of 8.0. A buffer is most effective when the pH is within one unit of the pKa, making phosphate suitable for maintaining a pH around 8.0.",
+    "level": 5,
+    "b": 1.6,
+    "ai_generated": true,
+    "concept_id": 15,
+    "source_ref": "MileDown General Chemistry: Acids, Bases, and Buffers"
+  },
+  {
+    "stem": "If a buffer solution has a pH of 6.5 and its pKa is 6.0, what can be inferred about the relative concentrations of the conjugate base and weak acid in the solution?",
+    "choices": [
+      "The concentration of the weak acid is greater than the conjugate base.",
+      "The concentration of the conjugate base is greater than the weak acid.",
+      "The concentrations of the weak acid and conjugate base are equal.",
+      "The buffer is ineffective at this pH."
+    ],
+    "answer": 1,
+    "explanation": "Using the Henderson-Hasselbalch equation, if pH > pKa, this indicates that the concentration of the conjugate base ([A-]) is greater than that of the weak acid ([HA]). Thus, the correct inference is that the concentration of the conjugate base is greater than the weak acid.",
+    "level": 5,
+    "b": 1.6,
+    "ai_generated": true,
+    "concept_id": 15,
+    "source_ref": "MileDown General Chemistry: Acids, Bases, and Buffers"
+  }
+]

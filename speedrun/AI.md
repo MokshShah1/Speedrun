@@ -162,6 +162,25 @@ response data rather than trusting the level prior. Next hardening step: a
 second-model "answer-verifier" pass (independent solve + agree) before an item
 is eligible to move `G`.
 
+## Breadth — second source (buffers), a different domain
+
+To show the pipeline isn't tuned to one cluster, we ran a second live source in a
+different section: **acids, bases, and buffers** (concept `5A`, Chem/Phys),
+`gpt-4o-mini`, 5 candidates per rung across L0–L5 (`data/buffers_items_openai.json`).
+
+The checker gated it **harder than glucagon** — **14/30 accepted (16 rejected)** —
+and for the same catalogue of reasons it was designed to catch, on brand-new
+content: `level_miscalibrated` (definition rungs written as experiment scenarios),
+`copies_source` (Henderson–Hasselbalch restated verbatim), `answer_leaks_into_stem`,
+`answer_out_of_range`, and one `catchall_choice`. That the accept rate _dropped_ on
+an unseen domain is the point: the bar is mechanical and content-agnostic, not
+overfit to the first cluster.
+
+Both live runs are then proven to drive the engine **with AI off**:
+`python -m speedrun.ai.prove_ai_off` checks provenance (every item traces to a
+concept + ladder level + named source) and scores R/T/G + readiness straight from
+the Rust engine — no model in the scoring path. Both sets PASS.
+
 ## Still open
 
 - A second-model answer-correctness verifier (independent solve-and-agree) to
