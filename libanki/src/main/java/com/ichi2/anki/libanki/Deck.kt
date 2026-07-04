@@ -135,6 +135,8 @@ fun Order.toDisplayString(translations: Translations) =
         Order.REVERSE_ADDED -> translations.decksLatestAddedFirst()
         Order.RETRIEVABILITY_ASCENDING -> translations.deckConfigSortOrderRetrievabilityAscending()
         Order.RETRIEVABILITY_DESCENDING -> translations.deckConfigSortOrderRetrievabilityDescending()
+        // Added in anki 26.05 backend proto; this AnkiDroid checkout predates it.
+        Order.RELATIVE_OVERDUENESS -> "Relative overdueness"
         Order.UNRECOGNIZED -> throw IllegalArgumentException("Can't display an unknown enum value.")
     }
 

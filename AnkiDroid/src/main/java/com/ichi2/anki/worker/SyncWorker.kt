@@ -153,6 +153,12 @@ class SyncWorker(
                 monitor.cancel()
             }
         Timber.i("Sync required: %s", response.required)
+        // Speedrun: piggyback the transfer-review log (T/G) on the normal sync.
+        // Anki's sync moves cards/notes/revlog (so recall R already syncs); the
+        // transfer_review table is not in that schema, so push/pull it here via
+        // the transfer-sync server. No-op and never throws if no server is up.
+        com.ichi2.anki.speedrun.TransferLogSync
+            .syncQuietly(applicationContext, CollectionManager.getBackend())
         when (response.required) {
             // a successful sync returns this value
             SyncCollectionResponse.ChangesRequired.NO_CHANGES -> {
