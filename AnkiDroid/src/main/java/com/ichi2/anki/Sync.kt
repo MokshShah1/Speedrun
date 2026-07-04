@@ -213,6 +213,18 @@ private suspend fun handleNormalSync(
             TODO("should never happen")
         }
     }
+
+    // Speedrun: piggyback the transfer-review log (T/G) plus on-device concept
+    // seeding and scoring on the foreground (DeckPicker) sync. Anki's sync moves
+    // cards/notes/revlog (so recall R already syncs); the transfer_review table
+    // isn't in that schema, so push/pull it here via the transfer-sync server.
+    // Runs on IO (it does network + backend I/O); never throws if no server.
+    withContext(Dispatchers.IO) {
+        com.ichi2.anki.speedrun.TransferLogSync.syncQuietly(
+            deckPicker.applicationContext,
+            CollectionManager.getBackend(),
+        )
+    }
 }
 
 private fun fullDownloadProgress(title: String): ProgressContext.() -> Unit =
