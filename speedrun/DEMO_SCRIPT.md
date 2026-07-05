@@ -1,111 +1,113 @@
-# Speedrun — Demo / Recording Script (read-aloud)
+# Speedrun — Sunday demo video script (read-aloud)
 
-How to use this: **DO** = what to click or run. **SAY** = read it aloud while you do it.
-Go top to bottom. Total ~4–5 min. (AI is a Friday item, so the Wednesday recording stays AI-free.)
+3–5 minutes, every required element in order. **DO** = what to click/run.
+**SAY** = read aloud while you do it. Record each clip separately and stitch them.
 
-Before you start: have a terminal open at `C:\dev\speedrun-anki`, and the Android emulator
-booted with AnkiDroid installed.
-
----
-
-## 0. One-liner intro (10 sec) — say to camera
-**SAY:** "This is Speedrun — an MCAT study app I built by forking Anki and changing its core
-Rust engine. Anki's FSRS already nails one thing: memory — *will you recall a fact.* But a real
-exam needs two harder things: can you *use* that fact on a brand-new question, and are you
-*actually ready.* Those two bridges are what I built, and every piece is grounded in learning
-science."
+Required elements (Section 12) and where they land: Rust change (Clip 2), three
+scores with ranges (Clip 3), AI features (Clip 5), review session + phone→desktop
+sync (Clip 6), test results (Clip 7).
 
 ---
 
-## 1. The engine change + clean build  ▶ (Recording 1)
-**DO:**
-```powershell
-cd C:\dev\speedrun-anki
-git log -1 --format="%H"
-.\run.bat
-```
-**SAY (while it compiles):** "My change lives in Anki's **Rust engine**, not just the Python
-screens — new tables, a transfer model, and new RPCs under `rslib/src/speedrun`. It's in Rust on
-purpose: it's fast, and the *same* engine ships to both desktop and phone. This is building the
-whole thing from source right now."
-**SAY (when Anki opens):** "And there's the forked app running."
+## PREP (before recording)
+
+1. Terminal at `C:\dev\speedrun-anki`.
+2. **Seed a video-ready collection** so the dashboard shows real scores (with
+   desktop Anki **closed**):
+   ```powershell
+   python speedrun\demo_seed.py "$env:APPDATA\Anki2\User 1\collection.anki2"
+   ```
+   This produces ~68% coverage, Memory ≈ 67% > Performance ≈ 41% (a real
+   illusion-of-mastery gap), Readiness ≈ 495 with a range. Without it the
+   dashboard correctly shows "No score yet" (the abstention rule).
+3. Start desktop Anki: `.\run.bat`.
+4. Two sync servers up: `python -m anki.syncserver` (8080) and
+   `python -m speedrun.sync.transfer_sync_server --port 8090 --data out\transfer-log.json`.
+5. Emulator booted, AnkiDroid pointed at `http://10.0.2.2:8080/`, logged in.
+6. logcat ready: `adb logcat | findstr Speedrun`.
 
 ---
 
-## 2. The dashboard — three scores + the "illusion of mastery" gap
-**DO:** Tools ▸ **Speedrun Dashboard**
-**SAY:** "Three *separate* scores, because they're three different questions. **Memory (R)** —
-recall, straight from FSRS. **Performance (T)** — can you solve a *novel* exam-style problem,
-modeled with a 1-PL IRT / Elo update. **Readiness** — T scaled onto the real 472–528 MCAT scale
-with a confidence band."
-**SAY (point at G):** "The headline number is **G = R − T** — the *illusion of mastery* gap. High
-recall but low transfer means you memorized the wording, not the concept. The learning science
-here: people are terribly *miscalibrated* about their own learning — the feeling of knowing isn't
-knowing — so I don't trust that feeling, I *measure* the gap and study the biggest one first."
-**SAY (if it shows no score / low coverage):** "Right now it *abstains* on readiness because I
-haven't logged enough graded answers yet — that's the **give-up rule**. An honest 'not enough data'
-beats a confident guess in a nice font. As I study, R and readiness fill in."
+## Clip 1 — Intro + what changed since the MVP (~25s) — to camera
+**SAY:** "This is Speedrun — an MCAT app I built by forking Anki and changing its
+core Rust engine. Since the Wednesday MVP I added three things: an **AI item
+pipeline that's checked before anything reaches a student**, **two-way
+phone–desktop sync**, and **calibrated models** for all three scores. Anki's FSRS
+already handles memory; I built the two harder bridges — can you *use* a fact, and
+are you *actually ready* — and I can prove each one."
 
----
+## Clip 2 — The Rust engine change *(required)* (~30s)
+**DO:** `git log -1 --format="%H"` (optionally show `.\run.bat` compiling → Anki opens → Help ▸ About = `26.05-speedrun`).
+**SAY:** "My change lives in Anki's **Rust engine** — `rslib/src/speedrun`: new
+tables, a transfer model, new protobuf RPCs, all transactional and undoable. It's
+in Rust on purpose — it's fast, and the *same* compiled engine ships to both
+desktop and phone."
 
-## 3. Transfer Review — measuring performance, not memory
-**DO:** Tools ▸ **Speedrun: Transfer Review** → read an item → pick an answer → see the result → Next.
-**SAY:** "This is where **performance** is measured — exam-style questions along a difficulty
-ladder, L0 definition up to L5 full passage (that's *desirable difficulty* — you don't measure
-transfer at a single point). Every graded answer updates that concept's transfer ability with an Elo-style
-update. And the score comes from these *machine-checkable* answers — **not** from me clicking
-'Good.' The student is the least reliable sensor in the loop."
+## Clip 3 — Three scores with ranges + the G gap *(required)* (~60s)
+**DO:** Tools ▸ **Speedrun Dashboard**.
+**SAY:** "Three *separate* scores, because they're three different questions.
+**Memory (R)** — recall, from FSRS. **Performance (T)** — can you solve a *novel*
+exam-style question, modeled with a 1-PL IRT / Elo update. **Readiness** — T mapped
+onto the real 472–528 scale, and it's a **range, not one number** — the band
+widens as coverage drops."
+**SAY (point at Gap):** "The headline is **G = R − T**, the illusion of mastery —
+here memory is 67% but performance is 41%, so there's a real gap: I recognize this
+material but can't yet *use* it. The app tells me exactly where to start."
+**SAY (honesty rule):** "And it **refuses to guess** — below 50 graded answers and
+25% coverage it shows *'No score yet'* with what's missing. An honest 'not enough
+data' beats a confident guess in a nice font."
 
----
+## Clip 4 — Transfer Review: measuring performance, not memory (~30s)
+**DO:** Tools ▸ **Speedrun: Transfer Review** → read an item → answer → result → Next.
+**SAY:** "This is where **performance** is measured — exam-style questions along a
+difficulty ladder, L0 definition up to L5 full passage. Every graded answer updates
+that concept's transfer ability. The score anchors on *machine-checkable* answers,
+not on me clicking 'Good' — the student is the least reliable sensor in the loop."
 
-## 4. The study feature: interleaving (tested with an ablation)
-**SAY:** "The study feature I chose is **interleaving** — mixing related concepts in a session
-instead of blocking one topic at a time. Blocked practice *feels* more efficient but it hurts
-transfer. I didn't just assert that — I ran an **ablation**: with an order-agnostic learner
-interleaving made *no* difference (no free lunch, exactly as expected), but with a forgetting
-learner it improved transfer by about **+0.28, confidence interval excluding zero**. A fair test
-that could have shown 'no effect' — and that's a real result either way."
+## Clip 5 — AI: generated, checked, beats a baseline, works with AI off *(required)* (~45s)
+**DO:** `out\pyenv\Scripts\python.exe -m speedrun.ai.run_eval`
+**SAY:** "AI generates transfer questions from a **named source**, but a raw model
+output never touches the score — every item clears a mechanical **checker** and a
+**leakage scan** first. On a 50-item held-out gold set the checker hits **1.000
+accuracy versus 0.500** for accept-all, with cutoffs committed before I looked."
+**DO:** `out\pyenv\Scripts\python.exe -m speedrun.ai.prove_ai_off`
+**SAY:** "And it still scores with **AI switched off** — live-generated items, each
+traceable to a concept, ladder level, and source, driving the engine with the AI
+provider disabled. The model helps *make* questions; it never *grades* you."
 
----
+## Clip 6 — One engine, phone → desktop sync + review session *(required)* (~50s)
+**DO:** On the **emulator**: open a deck → review 1–2 cards (Show Answer → Good) → back → tap **↻ Sync**.
+**SAY:** "Same engine on mobile — AnkiDroid built on my *forked Rust backend*. I
+reviewed cards on the phone and synced."
+**DO:** On **desktop Anki**: click **↻ Sync** → open the deck / Browse → show the reviews from the phone.
+**SAY:** "Sync the desktop and the phone's reviews show up here — two-way, nothing
+lost or double-counted because the transfer log is append-only and merged by unique
+ID. It works offline too, then syncs when the connection returns."
+**DO (optional, point at logcat):** "And the phone computes all three scores
+**on-device** with that shared engine — here in the log."
 
-## 5. Tests + engine harnesses  ▶ (Recording 2)
-**DO:**
-```powershell
-.\speedrun\wednesday_proof.ps1
-```
-**SAY:** "The Rust change is covered by **16 unit tests** plus Python tests that call it through the
-backend, and then the harnesses: the **transfer model is calibrated** — it beats the baselines,
-including a difficulty-only baseline, so it's really *learning ability*, not just knowing the question
-difficulty; the **memory model (FSRS recall) is separately calibrated** on held-out reviews (Brier /
-log-loss + a reliability table); a **hard-kill crash-recovery** test; the interleaving ablation; and a
-soak test. All green — and anyone can re-run this one command."
+## Clip 7 — Test results: re-runnable *(required)* (~30s)
+**DO:** `out\pyenv\Scripts\python.exe speedrun\eval\paraphrase.py` (fast; don't run the full 5-min suite on camera).
+**SAY:** "None of this is a promise — it's re-runnable. One command,
+`sunday_proof.ps1`, runs **all 15 headless proofs** and prints PASS/FAIL: memory
+calibration, transfer calibration, this paraphrase test proving performance isn't
+just memory, the interleaving ablation, crash recovery, sync, benchmarks — all
+green. And `SUBMISSION.md` maps every rubric item to the exact file and command."
 
----
-
-## 6. One engine, on the phone  ▶ (Recording 4)
-**DO:** switch to the emulator → open **AnkiDroid** → open a deck → **study a card**: front →
-**Show answer** → **Good** → show the count change (`1 0 0` → `0 1 0`).
-**SAY:** "Same engine on mobile. This is AnkiDroid built on my *forked Rust backend* — the exact
-same scheduler and Speedrun engine as desktop, compiled into the app. Reviewing here runs on that
-shared engine, and my exam deck (MileDown) is loaded on the desktop side, so both apps review the
-same material."
-
----
-
-## 7. It ships — installer on a clean machine  ▶ (Recording 3)
-**DO:** on a fresh Windows VM, run `anki-26.05-win-x64.msi` → install → launch → **Help ▸ About**
-shows `26.05-speedrun` → open **Tools ▸ Speedrun Dashboard**.
-**SAY:** "And it packages into a real Windows installer that runs on a clean machine."
+## Clip 8 — Close (~10s)
+**SAY:** "One exam, two apps on one Rust engine, three honest scores I can back up —
+memory and performance both calibrated, AI that's checked before it's trusted, and
+a readiness number that knows when to stay quiet. Thanks for watching."
 
 ---
 
 ## Learning-science cheat-sheet (what changed vs. plain Anki, and why)
-- **Anki/FSRS = memory (spacing + retrieval practice).** I kept it and *inherited* R from it.
-- **New: Transfer (T).** Measures application on novel items — *transfer-appropriate processing*,
-  the thing memory alone doesn't predict. (`rslib/src/speedrun/mod.rs`, Elo/IRT.)
-- **New: G = R − T.** Operationalizes the *metacognitive miscalibration* / illusion of mastery.
-- **Don't trust the grade button.** Scores anchor on machine-graded answers, not self-report.
-- **Interleaving** as the study feature, validated by an *ablation* (the honest test).
-- **Difficulty ladder L0–L5** = desirable difficulties; measure transfer across a gradient.
-- **Give-up rule + confidence band** = honest uncertainty; abstain without enough data.
-- **AI items are gold-set gated** (Friday): a raw model output never touches the score.
+- **Anki/FSRS = memory** (spacing + retrieval practice). Kept and *inherited* as R.
+- **New: Transfer (T)** — application on novel items (transfer-appropriate
+  processing), what memory alone doesn't predict. (`rslib/src/speedrun/mod.rs`.)
+- **New: G = R − T** — operationalizes metacognitive miscalibration / illusion of mastery.
+- **Don't trust the grade button** — scores anchor on machine-graded answers.
+- **Interleaving** as the study feature, validated by an *ablation* across 3 builds.
+- **Difficulty ladder L0–L5** = desirable difficulties; transfer across a gradient.
+- **Give-up rule + abstention** = honest uncertainty; no score without enough data.
+- **AI items are gold-set gated** — a raw model output never touches the score.
