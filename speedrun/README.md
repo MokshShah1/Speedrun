@@ -4,6 +4,11 @@ Speedrun is a fork of [Anki](https://github.com/ankitects/anki) that schedules s
 
 License: GNU AGPL-3.0-or-later (inherited from Anki). Some Anki components are BSD-3-Clause. This fork preserves all upstream license headers.
 
+> **Grading / verification:** start at **`speedrun/SUBMISSION.md`** — it maps every
+> rubric item to the file and the one command that proves it, and
+> **`.\speedrun\sunday_proof.ps1`** re-runs every headless proof with a PASS/FAIL
+> summary. Model write-ups are in **`speedrun/MODELS.md`**.
+
 ## Core idea (from the Brainlift / PRD)
 
 - **R** = recall probability (from Anki's FSRS).
@@ -15,7 +20,7 @@ License: GNU AGPL-3.0-or-later (inherited from Anki). Some Anki components are B
 
 App-specific assets that ship with the fork, kept separate from upstream Anki code:
 
-- `data/concepts.json` — the AAMC content-outline concept map (the coverage backbone). 31 in-scope content categories across Bio/Biochem, Chem/Phys, Psych/Soc (CARS excluded). `exam_weight` is a tunable uniform-within-section prior to be refined against AAMC's published distributions.
+- `data/concepts.json` — the AAMC content-outline concept map (the coverage backbone). 31 in-scope content categories across Bio/Biochem, Chem/Phys, Psych/Soc (CARS excluded). `exam_weight` is **calibrated to AAMC's published per-section Foundational-Concept distributions** (concept map v0.2.0); the derivation and source URLs are in the file's `weighting` block.
 - `data/seed_items.json` — hand-authored transfer items (no AI) spanning ladder levels L0-L5, used for the Wednesday review loop. Same schema the Friday AI generator targets.
 - `import_content.py` — loads the concept map + seed items into a collection through the engine RPCs (`upsert_concept` / `upsert_item`). Run after a build: `python speedrun/import_content.py [collection.anki2]`. With no path it creates a throwaway collection and prints a verification summary (concept count, coverage, gap queue).
 - `ai/` — the Phase 6 AI transfer-item generation pipeline (provider + checker + leakage scanner + cache + gold-set eval). Fully offline-testable; see `AI.md`.
@@ -23,8 +28,10 @@ App-specific assets that ship with the fork, kept separate from upstream Anki co
 - `ENGINE.md` — the Phase 2 engine: what it does, why it lives in Rust, files touched, and the test/undo proof.
 - `AI.md` — the Phase 6 AI pipeline: how items are generated from a named source, the quality bar, the leakage scanner, the 50-item gold set, and how to run it live with an API key.
 - `SYNC.md` — the Phase 7 sync model: standard data via Anki's self-hosted server, and the append-only transfer-review log merge (union by guid + deterministic replay).
-- `eval/` — Phase 8 evaluation harnesses: calibration (Brier/log-loss/ECE vs baselines), the interleaving ablation experiment (honest null + forgetting effect), and the 20x soak/restart test. See `EVAL.md`.
-- `EVAL.md` — calibration results, the interleaving experiment, the soak test, and the documented v0 readiness mapping.
+- `eval/` — evaluation harnesses: transfer calibration + **memory (FSRS) calibration** (Brier/log-loss/ECE vs baselines, held-out), the **paraphrase test** (T is not a copy of R, PRD 7d), the **interleaving ablation across 3 builds** (feature on/off/plain Anki), the 20x soak/restart, hard-kill crash recovery, and the benchmark. See `EVAL.md`.
+- `EVAL.md` — calibration results, the paraphrase test, the 3-build interleaving experiment, soak/crash/bench, and the documented v0 readiness mapping.
+- `MODELS.md` — one page each for the Memory, Performance, and Readiness models, including the give-up / abstention rule.
+- `SUBMISSION.md` — the rubric-mapped verification index; `sunday_proof.ps1` runs every headless proof in one command.
 - `android/` — Phase 5 turn-key build kit: how to build the AnkiDroid backend `.aar` from this fork (submodule re-point), wire AnkiDroid to it, and prove the Speedrun RPCs on the Android backend. See `android/ANDROID.md`.
 
 ## Engine change (Rust, `rslib`) — implemented
