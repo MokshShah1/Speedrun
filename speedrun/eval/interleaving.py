@@ -3,12 +3,23 @@
 
 """Study-feature ablation: blocked vs interleaved practice ordering.
 
-This is the experiment the PRD asks for, run honestly. We hold the amount of
-practice per concept *equal* across arms, so the only thing that differs is the
-ORDER:
+This is the experiment the PRD (section 8) asks for, run honestly with the three
+required builds, holding the amount of practice per concept *equal* across arms so
+the only thing that differs is the ORDER:
 
-- blocked     : c0 x K, then c1 x K, ...  (finish one concept before the next)
 - interleaved : c0, c1, ..., cN, repeated K times (round-robin)
+                => **Speedrun, feature ON** (the transfer-gap queue rotates concepts)
+- blocked     : c0 x K, then c1 x K, ...  (finish one concept before the next)
+                => **Speedrun, feature OFF** (the ablation: gap-queue disabled)
+- plain Anki  : the same reps in a concept-agnostic order (a per-learner shuffle)
+                => **baseline** (stock Anki schedules by card due-date, blind to
+                   concept mastery; it neither blocks nor deliberately interleaves)
+
+Why three arms (PRD section 8): interleaved-vs-blocked isolates the *feature*
+(does interleaving do the work?); interleaved-vs-plain-Anki shows the *whole app*
+beats the obvious alternative. Plain Anki is modeled as concept-agnostic because
+that is exactly what stock Anki is: it spaces individual cards by memory but has
+no notion of a concept-level transfer gap to interleave on.
 
 We run it under two explicit learner models and let the data speak:
 
@@ -98,26 +109,40 @@ def run_scenario(
 ) -> dict:
     rng = random.Random(seed)
     blocked_order, inter_order = _orders(n_concepts, k)
-    diffs: list[float] = []
+    diffs: list[float] = []          # interleaved - blocked (feature vs ablation)
+    diffs_plain: list[float] = []    # interleaved - plain Anki (app vs baseline)
     blocked_scores: list[float] = []
     inter_scores: list[float] = []
+    plain_scores: list[float] = []
     for _ in range(n_learners):
         theta0 = [rng.gauss(-0.5, 1.0) for _ in range(n_concepts)]
+        # Plain Anki: same reps, concept-agnostic order (stock due-order proxy).
+        plain_order = blocked_order[:]
+        rng.shuffle(plain_order)
         b = _final_transfer(blocked_order, theta0, gain, decay)
         i = _final_transfer(inter_order, theta0, gain, decay)
+        p = _final_transfer(plain_order, theta0, gain, decay)
         blocked_scores.append(b)
         inter_scores.append(i)
+        plain_scores.append(p)
         diffs.append(i - b)
+        diffs_plain.append(i - p)
     eff, lo, hi = metrics.bootstrap_ci(diffs, seed=seed)
+    eff_p, lo_p, hi_p = metrics.bootstrap_ci(diffs_plain, seed=seed)
     null = lo <= 0.0 <= hi
+    null_plain = lo_p <= 0.0 <= hi_p
     return {
         "name": name,
         "decay": decay,
         "blocked_mean": metrics.mean(blocked_scores),
         "interleaved_mean": metrics.mean(inter_scores),
+        "plain_mean": metrics.mean(plain_scores),
         "effect": eff,
         "ci": (lo, hi),
         "null": null,
+        "effect_plain": eff_p,
+        "ci_plain": (lo_p, hi_p),
+        "null_plain": null_plain,
         "n_learners": n_learners,
     }
 
@@ -127,28 +152,43 @@ def main() -> int:
         run_scenario("order-agnostic (no forgetting)", decay=0.0),
         run_scenario("forgetting learner", decay=0.04),
     ]
-    print("Speedrun interleaving ablation (blocked vs interleaved, equal practice)")
+    print("Speedrun interleaving ablation - 3 builds, equal practice per concept")
+    print("  arms: interleaved = feature ON | blocked = feature OFF | plain = stock Anki")
     for s in scenarios:
         lo, hi = s["ci"]
+        lo_p, hi_p = s["ci_plain"]
         verdict = "NULL (CI spans 0)" if s["null"] else "EFFECT (CI excludes 0)"
+        verdict_p = "NULL (CI spans 0)" if s["null_plain"] else "EFFECT (CI excludes 0)"
         print(f"\n  Scenario: {s['name']}  (decay={s['decay']}, n={s['n_learners']})")
-        print(f"    blocked mean transfer    : {s['blocked_mean']:.4f}")
-        print(f"    interleaved mean transfer: {s['interleaved_mean']:.4f}")
-        print(f"    effect (interleaved-blocked): {s['effect']:+.4f}  "
-              f"95% CI [{lo:+.4f}, {hi:+.4f}]")
-        print(f"    verdict: {verdict}")
+        print(f"    interleaved (feature ON) mean transfer: {s['interleaved_mean']:.4f}")
+        print(f"    blocked     (feature OFF) mean transfer: {s['blocked_mean']:.4f}")
+        print(f"    plain Anki  (baseline)    mean transfer: {s['plain_mean']:.4f}")
+        print(f"    effect vs ablation (interleaved-blocked): {s['effect']:+.4f}  "
+              f"95% CI [{lo:+.4f}, {hi:+.4f}]  -> {verdict}")
+        print(f"    effect vs plain Anki (interleaved-plain): {s['effect_plain']:+.4f}  "
+              f"95% CI [{lo_p:+.4f}, {hi_p:+.4f}]  -> {verdict_p}")
 
     # Honest validation of the harness itself:
-    #  - the order-agnostic scenario MUST be null (else the harness is biased),
-    #  - the forgetting scenario should detect the known spacing effect.
+    #  - the order-agnostic scenario MUST be null on BOTH contrasts (else biased),
+    #  - the forgetting scenario should detect the known spacing effect vs the
+    #    ablation AND beat the plain-Anki baseline.
     agnostic, forgetting = scenarios
     print("\n  Harness checks:")
-    print(f"    order-agnostic is null (required): {agnostic['null']}")
-    print(f"    forgetting shows an effect       : {not forgetting['null']}")
-    ok = agnostic["null"] and (not forgetting["null"])
+    print(f"    order-agnostic null vs ablation   (required): {agnostic['null']}")
+    print(f"    order-agnostic null vs plain Anki (required): {agnostic['null_plain']}")
+    print(f"    forgetting: feature beats ablation          : {not forgetting['null']}")
+    print(f"    forgetting: whole app beats plain Anki      : {not forgetting['null_plain']}")
+    ok = (
+        agnostic["null"]
+        and agnostic["null_plain"]
+        and (not forgetting["null"])
+        and (not forgetting["null_plain"])
+    )
     print("\n  RESULT:", "PASS" if ok else "FAIL")
-    print("  Interpretation: interleaving helps only when forgetting is present;"
-          " with an order-agnostic learner there is no free lunch.")
+    print("  Interpretation: interleaving helps only when forgetting is present"
+          " (no free lunch for an order-agnostic learner). With forgetting, the"
+          " feature beats both its own ablation and the concept-agnostic stock-Anki"
+          " order - so the gain is the interleaving, not just 'being Speedrun'.")
     return 0 if ok else 1
 
 

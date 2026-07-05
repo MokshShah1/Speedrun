@@ -161,12 +161,51 @@ def _stat(label: str, pct: float, color: str) -> str:
     )
 
 
-def _report_html(report) -> str:
+# Readiness abstention / give-up line (PRD sections 2 & 4): the app refuses to
+# show a projected score until it has enough evidence. Stated and tunable.
+# Rationale: below ~25% coverage the exam-weighted extrapolation is dominated by
+# topics we have never observed, and below ~50 graded transfer reviews the
+# per-concept Elo estimates are too noisy to project a scaled score honestly.
+SCORE_MIN_REVIEWS = 50
+SCORE_MIN_COVERAGE = 0.25
+
+
+def _report_html(report, total_reviews: int) -> str:
     pal = _palette()
     mem, perf = report.memory, report.performance
     gap = mem - perf
     gcol = _gap_color(gap)
     pos = max(2, min(98, round((report.readiness - 472) / 56 * 100)))
+
+    # Abstention gate: refuse a projected score when evidence is too thin.
+    abstained = total_reviews < SCORE_MIN_REVIEWS or report.coverage < SCORE_MIN_COVERAGE
+    if abstained:
+        need_rev = max(0, SCORE_MIN_REVIEWS - total_reviews)
+        unlock = (
+            f"Answer {need_rev} more transfer item{'s' if need_rev != 1 else ''}"
+            if need_rev
+            else "Cover more topics"
+        )
+        hero = (
+            '<div class="hero">'
+            '<div class="eyebrow">READINESS</div>'
+            '<div class="score" style="font-size:38px;line-height:1.25">No score yet</div>'
+            f'<div class="range">Need &ge; {SCORE_MIN_REVIEWS} graded transfer reviews and '
+            f'&ge; {round(SCORE_MIN_COVERAGE * 100)}% coverage &mdash; you have {total_reviews} '
+            f'review{"s" if total_reviews != 1 else ""} at {report.coverage * 100:.0f}% coverage. '
+            f'{unlock} to unlock an honest projection.</div>'
+            "</div>"
+        )
+    else:
+        hero = (
+            '<div class="hero">'
+            '<div class="eyebrow">PREDICTED MCAT SCORE</div>'
+            f'<div class="score">{report.readiness}</div>'
+            f"<div class=\"range\">Likely range {report.readiness_low}&ndash;{report.readiness_high}</div>"
+            f'<div class="scale"><div class="marker" style="left:{pos}%"></div></div>'
+            '<div class="ticks"><span>472</span><span>500</span><span>528</span></div>'
+            "</div>"
+        )
 
     # Gap stat: bar width shows the magnitude of the gap.
     gap_stat = (
@@ -211,13 +250,7 @@ def _report_html(report) -> str:
 
     return f"""<!doctype html><html><head><meta charset="utf-8">
 <style>{_css(pal)}</style></head><body><div class="wrap">
-  <div class="hero">
-    <div class="eyebrow">PREDICTED MCAT SCORE</div>
-    <div class="score">{report.readiness}</div>
-    <div class="range">Likely range {report.readiness_low}&ndash;{report.readiness_high}</div>
-    <div class="scale"><div class="marker" style="left:{pos}%"></div></div>
-    <div class="ticks"><span>472</span><span>500</span><span>528</span></div>
-  </div>
+  {hero}
   <div class="stats">
     {_stat("Memory", mem, _MEMORY)}
     {_stat("Performance", perf, _PERFORMANCE)}
@@ -240,6 +273,8 @@ def show_dashboard(mw: AnkiQt) -> None:
         return
     try:
         report = mw.col._backend.readiness_report()
+        # Total graded transfer reviews on this device, for the abstention gate.
+        total_reviews = len(list(mw.col._backend.export_transfer_log()))
     except Exception as exc:  # pragma: no cover - defensive
         showWarning(f"Could not build the readiness report: {exc}")
         return
@@ -254,7 +289,7 @@ def show_dashboard(mw: AnkiQt) -> None:
     layout.setSpacing(0)
 
     web = AnkiWebView(parent=dialog, title="Speedrun Readiness", kind=AnkiWebViewKind.DEFAULT)
-    web.setHtml(_report_html(report))
+    web.setHtml(_report_html(report, total_reviews))
     layout.addWidget(web, 1)
 
     buttons = QDialogButtonBox()

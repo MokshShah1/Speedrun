@@ -74,10 +74,11 @@ that could have shown 'no effect' — and that's a real result either way."
 .\speedrun\wednesday_proof.ps1
 ```
 **SAY:** "The Rust change is covered by **16 unit tests** plus Python tests that call it through the
-backend, and then the harnesses: the **memory model is calibrated** — it beats the baselines,
-including a difficulty-only baseline, so it's really *learning*, not just knowing the question
-difficulty; a **hard-kill crash-recovery** test; the interleaving ablation; and a soak test. All
-green — and anyone can re-run this one command."
+backend, and then the harnesses: the **transfer model is calibrated** — it beats the baselines,
+including a difficulty-only baseline, so it's really *learning ability*, not just knowing the question
+difficulty; the **memory model (FSRS recall) is separately calibrated** on held-out reviews (Brier /
+log-loss + a reliability table); a **hard-kill crash-recovery** test; the interleaving ablation; and a
+soak test. All green — and anyone can re-run this one command."
 
 ---
 

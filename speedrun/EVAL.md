@@ -41,27 +41,59 @@ prior**, so it can gate a build.
 > accuracy is `1 - Brier`-style scoring above; the paraphrase gap is `R - T`,
 > already surfaced by the engine as `G` and shown on the dashboard.
 
-## 2. Interleaving ablation (`interleaving.py`)
+## 1b. Memory-model calibration (`memory_calibration.py`, PRD Step 1)
 
-The study-feature experiment, run honestly. Practice **per concept is held
-equal** across arms; only the order differs:
+The memory-side counterpart: it scores Anki's **FSRS** recall on **held-out**
+reviews via `evaluate_with_time_series_splits` (train on each card's earlier
+reviews, test on later), so "when it says 80% the student recalls ~80%" is proven
+out-of-sample on the shipping engine. Reviews are drawn from an **exponential**
+forgetting curve (FSRS assumes a *power* curve) so it is a fair test, not a model
+grading its own homework. Reports held-out **log-loss** + **reliability RMSE** vs a
+base-rate baseline; exits non-zero unless FSRS beats the base rate with small
+calibration error. Full description in `MODELS.md` §1.
 
-- **blocked**: `c0 x K`, then `c1 x K`, ...
-- **interleaved**: round-robin `c0..cN`, repeated `K` times.
+## 2. Interleaving ablation — 3 builds (`interleaving.py`)
 
-Run under two explicit learner models, letting the data decide:
+The study-feature experiment, run honestly with the **three builds PRD §8 asks
+for**, holding practice **per concept equal** across arms so only the order differs:
 
-| scenario                        | effect (interleaved − blocked) | 95% CI             | verdict  |
-| ------------------------------- | ------------------------------ | ------------------ | -------- |
-| order-agnostic (no forgetting)  | +0.0000                        | [+0.0000, +0.0000] | **NULL** |
-| forgetting learner (decay 0.04) | +0.2854                        | [+0.2825, +0.2882] | effect   |
+- **interleaved** — round-robin `c0..cN` × K → **Speedrun, feature ON** (the gap queue rotates concepts)
+- **blocked** — `c0×K, c1×K, ...` → **Speedrun, feature OFF** (the ablation)
+- **plain Anki** — same reps in a **concept-agnostic** order → **baseline** (stock Anki spaces cards by memory, blind to a concept-level transfer gap)
+
+Two contrasts fall out: *interleaved − blocked* isolates the feature; *interleaved
+− plain Anki* shows the whole app beats the obvious alternative. Run under two
+explicit learner models:
+
+| scenario            | interleaved | blocked | plain Anki | vs blocked (95% CI)          | vs plain Anki (95% CI)       |
+| ------------------- | ----------- | ------- | ---------- | ---------------------------- | ---------------------------- |
+| order-agnostic      | 0.6737      | 0.6737  | 0.6737     | +0.0000 [+0.0000,+0.0000] **NULL** | +0.0000 [+0.0000,+0.0000] **NULL** |
+| forgetting (0.04)   | 0.6473      | 0.3607  | 0.6241     | **+0.2866** [+0.2840,+0.2892] | **+0.0232** [+0.0219,+0.0245] |
 
 The null in the order-agnostic case is the point: with equal practice and no
-forgetting, order _cannot_ matter, so a credible harness must report no effect
-there (if it didn't, it would be rigged). Interleaving helps only once a
-forgetting mechanism is present — the spacing benefit — and that mechanism is
-stated up front, not smuggled into the conclusion. The script asserts both:
-order-agnostic must be null **and** forgetting must show an effect.
+forgetting, order _cannot_ matter, so a credible harness must report no effect on
+**both** contrasts (else it's rigged). With forgetting, interleaving beats both its
+own blocked ablation **and** the concept-agnostic stock-Anki order — so the gain is
+the interleaving itself, not just "being Speedrun." Notably plain Anki (0.624) sits
+between blocked (0.361) and interleaved (0.647): stock Anki's mixed order already
+avoids the worst of blocking, and deliberate interleaving adds more on top. The
+script asserts both scenarios on both contrasts.
+
+## 2b. Paraphrase test — T is not a copy of R (`paraphrase.py`, PRD 7d)
+
+Proves Performance (T) carries signal beyond Memory (R). Two archetypes with
+**decoupled** latent abilities are run through the **real engine**:
+
+| archetype    | R (recall) | T (engine) | true T | G = R−T | \|T−true\| | \|T−R\| |
+| ------------ | ---------- | ---------- | ------ | ------- | ---------- | ------- |
+| memorizer    | 0.975      | 0.236      | 0.213  | +0.739  | 0.054      | 0.739   |
+| understander | 0.950      | 0.736      | 0.734  | +0.214  | 0.078      | 0.214   |
+
+The engine **recovers the true transfer ability** (|T−true| < 0.08 both), and for
+the memorizer T lands **0.74 away from R** — if T merely copied R it would sit on
+top of it. The gap is **conditional on the student** (Δ = 0.52 between archetypes),
+so R−T is a real "illusion of mastery" signal (SPOV 2), largest exactly for the
+student who memorized the wording — not an artifact of the memory model.
 
 ## 3. Soak / restart test (`soak.py`)
 
@@ -173,8 +205,10 @@ make -C speedrun tag-test    # deck auto-tagger self-test
 python -m pytest speedrun/eval/test_eval.py   # pure unit tests (no backend)
 python speedrun/eval/bench.py                 # needs tools/ninja pylib first
 python speedrun/eval/crash_kill.py            # needs tools/ninja pylib first
-python speedrun/eval/calibration.py
-python speedrun/eval/interleaving.py
+python speedrun/eval/calibration.py           # transfer (T) calibration
+python speedrun/eval/memory_calibration.py    # memory (R / FSRS) calibration, held-out
+python speedrun/eval/paraphrase.py            # T is not a copy of R (PRD 7d)
+python speedrun/eval/interleaving.py          # study-feature ablation, 3 builds (PRD 8)
 python speedrun/eval/soak.py
 python speedrun/tag_deck.py --self-test
 ```
