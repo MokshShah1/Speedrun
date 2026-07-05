@@ -11,20 +11,31 @@ each concept has a fixed latent ability `true_theta`, and an item of difficulty
 `b` is answered correctly with probability `sigmoid(true_theta - b)` (the 1-PL
 IRT model the engine assumes). We then drive the **real backend**: at each trial
 the model predicts `sigmoid(theta_hat - b)` from its current estimate, we sample
-the outcome from the DGP, and the engine updates `theta_hat`. Predictions are
-scored against an always-0.5 baseline and a base-rate baseline.
+the outcome from the DGP, and the engine updates `theta_hat`.
 
-Observed (`python speedrun/eval/calibration.py`, 2160 trials):
+Predictions are scored against three baselines: always-0.5, the base rate
+(predict the global correct fraction), and a **difficulty-only prior** that knows
+each item's `b` but never learns `theta` (fixed at the prior 0). The last is the
+load-bearing one: because the engine's prediction already conditions on `b`,
+beating base-rate is nearly free — so the real test is beating a predictor that
+knows difficulty but never learns ability. The converged engine (2nd half, past
+cold-start burn-in) must beat it, which isolates the value of the ability-learning.
 
-| predictor             | log-loss  | Brier     | ECE       |
-| --------------------- | --------- | --------- | --------- |
-| **engine (full run)** | **0.573** | **0.194** | **0.024** |
-| baseline always-0.5   | 0.693     | 0.250     | —         |
-| baseline base-rate    | 0.692     | 0.249     | —         |
+Observed (`python speedrun/eval/calibration.py`, 2160 trials, base rate 0.526):
 
-The reliability table shows predicted ≈ observed in every populated bin. The
-script **exits non-zero unless the engine beats both baselines on log-loss**, so
-it can gate a build.
+| predictor                      | log-loss  | Brier     | ECE       |
+| ------------------------------ | --------- | --------- | --------- |
+| **engine (full run)**          | **0.573** | **0.194** | **0.024** |
+| engine (converged, 2nd half)   | 0.580     | 0.197     | 0.037     |
+| baseline difficulty-only prior | 0.608     | 0.210     | —         |
+| baseline base-rate             | 0.692     | 0.249     | —         |
+| baseline always-0.5            | 0.693     | 0.250     | —         |
+
+The reliability table tracks predicted ≈ observed in every populated bin (e.g.
+the 0.2–0.3 bin observes 0.26; the 0.7–0.8 bin observes 0.74), and ECE stays
+~0.02–0.04. The script **exits non-zero unless the engine beats all three
+baselines on log-loss — including the converged engine vs the difficulty-only
+prior**, so it can gate a build.
 
 > "Performance accuracy" and "paraphrase gap" in the PRD are the same machinery:
 > accuracy is `1 - Brier`-style scoring above; the paraphrase gap is `R - T`,
@@ -131,12 +142,20 @@ readiness = scale_score(performance, 472, 528)
 
 where `performance` is the exam-weight-weighted mean transfer `T` across in-scope
 concepts, and per-section scores map the section's weighted `T` onto 118..132 the
-same way. The confidence interval widens as coverage drops: a small fixed floor
-plus a term proportional to the un-observed share of the exam (so an unstudied
-exam reports a wide band, not false precision). This linear `T -> score` map is
-**v0**; the calibration harness above is the tool that will fit the real mapping
-(e.g. isotonic or a logistic link to AAMC scaled scores) when practice-test data
-is available.
+same way. As of concept-map **v0.2.0** those `exam_weight`s are no longer a
+uniform prior: each is derived from AAMC's published per-section Foundational-
+Concept distributions (Bio/Biochem FC1 55% / FC2 20% / FC3 25%; Chem/Phys FC4 40%
+/ FC5 60%; Psych/Soc FC6 25% / FC7 35% / FC8 20% / FC9 15% / FC10 5%), split
+uniformly across the content categories inside each FC (AAMC does not publish
+per-category counts). See the `weighting` block in `speedrun/data/concepts.json`
+for the exact method and source URLs.
+
+The confidence interval widens as coverage drops: a small fixed floor plus a term
+proportional to the un-observed share of the exam (so an unstudied exam reports a
+wide band, not false precision). This linear `T -> score` map is **v0**; the
+calibration harness above is the tool that will fit the real mapping (e.g.
+isotonic or a logistic link to AAMC scaled scores) when practice-test data is
+available.
 
 ## Running everything
 
@@ -163,5 +182,11 @@ python speedrun/tag_deck.py --self-test
 ## Still open in Phase 8
 
 - Signed APK + installer and the demo video need your machine / device.
-- Calibration against real AAMC practice-test scores remains (the calibration
-  harness is the tool that will consume that data when it exists).
+- **Weights: done.** Concept/section `exam_weight`s are calibrated to AAMC's
+  published Foundational-Concept distributions (concept-map v0.2.0); the
+  derivation and source URLs live in `speedrun/data/concepts.json`.
+- **Readiness scale map: still v0 (by choice).** Fitting the `T -> scaled-score`
+  link to real AAMC practice-test concordance data remains — that data is
+  proprietary and unavailable offline, so the linear map is kept explicit rather
+  than fit to data we don't have. The calibration harness above is the tool that
+  will consume it when it exists.
